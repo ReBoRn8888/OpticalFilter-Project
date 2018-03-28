@@ -1,0 +1,36 @@
+﻿  源.cpp
+  GetArea.cpp
+d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(43): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(49): warning C4244: “参数”: 从“double”转换到“const int”，可能丢失数据
+d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(111): warning C4244: “参数”: 从“float”转换到“int”，可能丢失数据
+d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(129): warning C4244: “参数”: 从“int”转换到“float”，可能丢失数据
+d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(135): warning C4244: “参数”: 从“int”转换到“float”，可能丢失数据
+d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(157): warning C4305: “初始化”: 从“__int64”到“int”截断
+d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(157): warning C4309: “初始化”: 截断常量值
+d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(162): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(170): warning C4244: “=”: 从“float”转换到“int”，可能丢失数据
+d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(182): warning C4244: “=”: 从“int”转换到“float”，可能丢失数据
+d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(214): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(215): warning C4244: “参数”: 从“float”转换到“int”，可能丢失数据
+d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(216): warning C4244: “参数”: 从“float”转换到“int”，可能丢失数据
+d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(217): warning C4244: “参数”: 从“float”转换到“int”，可能丢失数据
+d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(264): warning C4244: “参数”: 从“int”转换到“float”，可能丢失数据
+d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(324): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(325): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(442): warning C4244: “参数”: 从“int”转换到“float”，可能丢失数据
+d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(503): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(504): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(678): warning C4267: “=”: 从“size_t”转换到“int”，可能丢失数据
+d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(692): warning C4244: “参数”: 从“float”转换到“int”，可能丢失数据
+d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(693): warning C4244: “参数”: 从“float”转换到“int”，可能丢失数据
+d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(711): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
+d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(853): warning C4244: “参数”: 从“float”转换到“int”，可能丢失数据
+d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(856): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(900): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(906): warning C4244: “参数”: 从“float”转换到“int”，可能丢失数据
+d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(877): warning C4101: “area_temp”: 未引用的局部变量
+d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(884): warning C4101: “Tem_radius”: 未引用的局部变量
+d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(955): warning C4244: “参数”: 从“float”转换到“int”，可能丢失数据
+d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(958): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
+  正在生成代码...
+  OpticalFilter-Project.vcxproj -> D:\Study\Reborn\Work\OpticalFilter-Project\x64\Debug\OpticalFilter-Project.exe
