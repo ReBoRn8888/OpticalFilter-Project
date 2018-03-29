@@ -19,11 +19,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="GetArea.cpp" />
-    <ClCompile Include="源.cpp" />
+    <ClCompile Include="AssisFunction.cpp" />
+    <ClCompile Include="Detect.cpp" />
+    <ClCompile Include="Filter.cpp" />
+    <ClCompile Include="Main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GetArea.h" />
+    <ClInclude Include="AssisFunction.h" />
+    <ClInclude Include="Filter.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
