@@ -1,52 +1,61 @@
-﻿  源.cpp
-  GetArea.cpp
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(49): warning C4244: “参数”: 从“double”转换到“const int”，可能丢失数据
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(109): warning C4018: “<”: 有符号/无符号不匹配
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(111): warning C4244: “参数”: 从“float”转换到“int”，可能丢失数据
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(127): warning C4018: “<”: 有符号/无符号不匹配
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(129): warning C4244: “参数”: 从“int”转换到“float”，可能丢失数据
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(133): warning C4018: “<”: 有符号/无符号不匹配
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(135): warning C4244: “参数”: 从“int”转换到“float”，可能丢失数据
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(157): warning C4305: “初始化”: 从“__int64”到“int”截断
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(157): warning C4309: “初始化”: 截断常量值
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(162): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(170): warning C4244: “=”: 从“float”转换到“int”，可能丢失数据
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(182): warning C4244: “=”: 从“int”转换到“float”，可能丢失数据
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(214): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(215): warning C4244: “参数”: 从“float”转换到“int”，可能丢失数据
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(216): warning C4244: “参数”: 从“float”转换到“int”，可能丢失数据
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(217): warning C4244: “参数”: 从“float”转换到“int”，可能丢失数据
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(235): warning C4018: “<=”: 有符号/无符号不匹配
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(238): warning C4018: “<”: 有符号/无符号不匹配
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(256): warning C4018: “<”: 有符号/无符号不匹配
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(264): warning C4244: “参数”: 从“int”转换到“float”，可能丢失数据
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(289): warning C4018: “<”: 有符号/无符号不匹配
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(324): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(325): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(434): warning C4018: “<”: 有符号/无符号不匹配
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(442): warning C4244: “参数”: 从“int”转换到“float”，可能丢失数据
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(467): warning C4018: “<”: 有符号/无符号不匹配
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(503): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(504): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(674): warning C4018: “<”: 有符号/无符号不匹配
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(676): warning C4018: “>”: 有符号/无符号不匹配
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(692): warning C4244: “参数”: 从“float”转换到“int”，可能丢失数据
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(693): warning C4244: “参数”: 从“float”转换到“int”，可能丢失数据
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(703): warning C4018: “<”: 有符号/无符号不匹配
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(711): warning C4244: “初始化”: 从“double”转换到“float”，可能丢失数据
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(817): warning C4018: “<”: 有符号/无符号不匹配
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(848): warning C4018: “<”: 有符号/无符号不匹配
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(853): warning C4244: “参数”: 从“float”转换到“int”，可能丢失数据
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(856): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(878): warning C4018: “<”: 有符号/无符号不匹配
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(895): warning C4018: “<”: 有符号/无符号不匹配
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(900): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(906): warning C4244: “参数”: 从“float”转换到“int”，可能丢失数据
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(877): warning C4101: “area_temp”: 未引用的局部变量
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(884): warning C4101: “Tem_radius”: 未引用的局部变量
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(927): warning C4018: “<”: 有符号/无符号不匹配
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(949): warning C4018: “<”: 有符号/无符号不匹配
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(955): warning C4244: “参数”: 从“float”转换到“int”，可能丢失数据
-d:\study\reborn\work\opticalfilter-project\opticalfilter-project\getarea.cpp(958): warning C4244: “初始化”: 从“double”转换到“int”，可能丢失数据
-  正在生成代码...
-opencv_world341.lib(opencv_world341.dll) : fatal error LNK1112: 模块计算机类型“x64”与目标计算机类型“x86”冲突
+﻿Build started 2018/4/4 22:42:28.
+     1>Project "E:\研究生\Work\OpticalFilter-Project\OpticalFilter-Project\OpticalFilter-Project.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         D:\VS 2013\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt AssisFunction.cpp Detect.cpp Filter.cpp Main.cpp
+         Main.cpp
+         Filter.cpp
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\filter.cpp(36): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\filter.cpp(37): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\filter.cpp(39): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\filter.cpp(41): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\filter.cpp(54): warning C4018: '<' : signed/unsigned mismatch
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\filter.cpp(62): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\filter.cpp(86): warning C4018: '<' : signed/unsigned mismatch
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\filter.cpp(121): warning C4244: 'initializing' : conversion from 'double' to 'int', possible loss of data
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\filter.cpp(122): warning C4244: 'initializing' : conversion from 'double' to 'int', possible loss of data
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\filter.cpp(173): warning C4018: '<' : signed/unsigned mismatch
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\filter.cpp(181): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\filter.cpp(206): warning C4018: '<' : signed/unsigned mismatch
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\filter.cpp(241): warning C4244: 'initializing' : conversion from 'double' to 'int', possible loss of data
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\filter.cpp(242): warning C4244: 'initializing' : conversion from 'double' to 'int', possible loss of data
+         Detect.cpp
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\detect.cpp(32): warning C4018: '<' : signed/unsigned mismatch
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\detect.cpp(36): warning C4244: 'initializing' : conversion from 'double' to 'int', possible loss of data
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\detect.cpp(40): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\detect.cpp(61): warning C4018: '<' : signed/unsigned mismatch
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\detect.cpp(66): warning C4244: 'initializing' : conversion from 'double' to 'int', possible loss of data
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\detect.cpp(70): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\detect.cpp(53): warning C4101: 'area_temp' : unreferenced local variable
+         AssisFunction.cpp
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\assisfunction.cpp(216): warning C4018: '<' : signed/unsigned mismatch
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\assisfunction.cpp(218): warning C4018: '>' : signed/unsigned mismatch
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\assisfunction.cpp(234): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\assisfunction.cpp(235): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\assisfunction.cpp(245): warning C4018: '<' : signed/unsigned mismatch
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\assisfunction.cpp(253): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\assisfunction.cpp(269): warning C4018: '<' : signed/unsigned mismatch
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\assisfunction.cpp(271): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\assisfunction.cpp(287): warning C4018: '<' : signed/unsigned mismatch
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\assisfunction.cpp(289): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\assisfunction.cpp(293): warning C4018: '<' : signed/unsigned mismatch
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\assisfunction.cpp(295): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\assisfunction.cpp(317): warning C4305: 'initializing' : truncation from '__int64' to 'int'
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\assisfunction.cpp(317): warning C4309: 'initializing' : truncation of constant value
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\assisfunction.cpp(322): warning C4244: 'initializing' : conversion from 'double' to 'int', possible loss of data
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\assisfunction.cpp(330): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\assisfunction.cpp(342): warning C4244: '=' : conversion from 'int' to 'float', possible loss of data
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\assisfunction.cpp(356): warning C4244: 'argument' : conversion from 'double' to 'const int', possible loss of data
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\assisfunction.cpp(369): warning C4018: '<=' : signed/unsigned mismatch
+     1>e:\研究生\work\opticalfilter-project\opticalfilter-project\assisfunction.cpp(372): warning C4018: '<' : signed/unsigned mismatch
+         Generating Code...
+       Link:
+         D:\VS 2013\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"E:\研究生\Work\OpticalFilter-Project\Debug\OpticalFilter-Project.exe" /INCREMENTAL /NOLOGO opencv_calib3d2413d.lib opencv_contrib2413d.lib opencv_core2413d.lib opencv_features2d2413d.lib opencv_flann2413d.lib opencv_gpu2413d.lib opencv_highgui2413d.lib opencv_imgproc2413d.lib opencv_legacy2413d.lib opencv_ml2413d.lib opencv_nonfree2413d.lib opencv_objdetect2413d.lib opencv_ocl2413d.lib opencv_photo2413d.lib opencv_stitching2413d.lib opencv_superres2413d.lib opencv_ts2413d.lib opencv_video2413d.lib opencv_videostab2413d.lib opencv_calib3d2413.lib opencv_contrib2413.lib opencv_core2413.lib opencv_features2d2413.lib opencv_flann2413.lib opencv_gpu2413.lib opencv_highgui2413.lib opencv_imgproc2413.lib opencv_legacy2413.lib opencv_ml2413.lib opencv_nonfree2413.lib opencv_objdetect2413.lib opencv_ocl2413.lib opencv_photo2413.lib opencv_stitching2413.lib opencv_superres2413.lib opencv_ts2413.lib opencv_video2413.lib opencv_videostab2413.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:"E:\研究生\Work\OpticalFilter-Project\Debug\OpticalFilter-Project.pdb" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"E:\研究生\Work\OpticalFilter-Project\Debug\OpticalFilter-Project.lib" /MACHINE:X64 /machine:X64 /debug Debug\AssisFunction.obj
+         Debug\Detect.obj
+         Debug\Filter.obj
+         Debug\Main.obj
+     1>Debug\AssisFunction.obj : fatal error LNK1112: module machine type 'X86' conflicts with target machine type 'x64'
+     1>Done Building Project "E:\研究生\Work\OpticalFilter-Project\OpticalFilter-Project\OpticalFilter-Project.vcxproj" (Build target(s)) -- FAILED.
+
+Build FAILED.
+
+Time Elapsed 00:00:03.71

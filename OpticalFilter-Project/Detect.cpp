@@ -26,7 +26,6 @@ int glassDetect(Mat& glass, int radiusThres, int contourAreaThres)
 	rectangle(addResult, Rect(Point(0, 0), Point(addResult.cols - 1, addResult.rows - 1)), Scalar(255), 1);
 	element = getStructuringElement(MORPH_RECT, Size(3, 3));
 	morphologyEx(addResult, addResult, MORPH_CLOSE, element);
-	imwrite("src.jpg", addResult);
 	findContours(addResult, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
 	//±È¿˙¬÷¿™£¨≈–∂œ»±œ›
 	int defect_flag = 0;	//»±œ›±Í÷æŒª£¨0--Œﬁ»±œ›£¨1--”–»±œ›

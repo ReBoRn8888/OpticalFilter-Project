@@ -120,9 +120,17 @@ void Filter::imageMatting(vector<Mat> &silkPrint_show_list, vector<double> image
 			double height_ratio = image_size[1] / image_size[3];	//大小矩形的高度比
 			int newwidth = width * width_ratio;		//计算出图上外部大矩形的宽度，即可提取出完整滤光片
 			int newheight = height * height_ratio;	//计算出图上外部大矩形的高度，即可提取出完整滤光片
+			silkPrint_show_list.push_back(temp(Rect(temp.cols / 2 - newwidth / 2, temp.rows / 2 - newheight / 2, newwidth, newheight)).clone());
+
+			//在镜面四个角上画黑色矩形，避免因打光不足而导致误判（如扁平丝印4 5 6.bmp）
+			int w = 60, scale = 15;
+			rectangle(temp, Rect(Point(tl.x - scale, tl.y - scale), Point(tl.x + w, tl.y + w)), Scalar(0), CV_FILLED, 8);
+			rectangle(temp, Rect(Point(bl.x - scale, bl.y - w), Point(bl.x + w, bl.y + scale)), Scalar(0), CV_FILLED, 8);
+			rectangle(temp, Rect(Point(tr.x - w, tr.y - scale), Point(tr.x + scale, tr.y + w)), Scalar(0), CV_FILLED, 8);
+			rectangle(temp, Rect(Point(br.x - w, br.y - w), Point(br.x + scale, br.y + scale)), Scalar(0), CV_FILLED, 8);
+
 			Mat whole = temp(Rect(temp.cols / 2 - newwidth / 2, temp.rows / 2 - newheight / 2, newwidth, newheight));	//提取出整块滤光片
 			glass_mask = glass_mask(Rect(temp.cols / 2 - newwidth / 2, temp.rows / 2 - newheight / 2, newwidth, newheight));	//调整glass_mask尺寸
-			silkPrint_show_list.push_back(whole.clone());
 
 			/*----------------------------------------------------------------*/
 			/*-------------------------滤光片提取模块-------------------------*/
@@ -134,17 +142,19 @@ void Filter::imageMatting(vector<Mat> &silkPrint_show_list, vector<double> image
 			/*----------------------------------------------------------------*/
 			/*--------------------------丝印提取模块--------------------------*/
 			/*----------------------------------------------------------------*/
+			findContours(glass_mask, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
 			Mat glass_thres;
 			threshold(glass, glass_thres, 0, 255.0, CV_THRESH_BINARY);
-			threshold(whole, whole, 35, 255.0, CV_THRESH_BINARY);
+			IplImage ipl = (IplImage)whole;
+			int th = Otsu(&ipl);
+			cout << th << endl;
+			drawContours(whole, contours, -1, Scalar(0), 15, 8);
+			threshold(whole, whole, th * 11 / 29, 255, CV_THRESH_BINARY);
 			Mat silkprint; //用于存储提取出的丝印部分
-
-			dilate(glass_thres, glass_thres, Mat(5, 5, CV_8U), Point(-1, -1), 2);
 			silkprint = whole + glass_thres;//通过与二值化的镜面部分相加，来提取出丝印部分
-			silkprint = silkprint - glass_thres;
-			Mat element = getStructuringElement(MORPH_RECT, Size(9, 9));
-			morphologyEx(silkprint, silkprint, MORPH_OPEN, element);
-			dilate(silkprint, silkprint, Mat(5, 5, CV_8U), Point(-1, -1), 1);
+			Mat element = getStructuringElement(MORPH_RECT, Size(5, 5));
+			morphologyEx(silkprint, silkprint, MORPH_CLOSE, element);
+			dilate(silkprint, silkprint, element, Point(-1, -1), 1);
 			silkprint_list.push_back(silkprint);
 		}
 		else
@@ -234,7 +244,7 @@ void Filter::imageMatting2(vector<Mat> &silkPrint_show_list, vector<double> imag
 			silkPrint_show_list.push_back(whole.clone());
 
 			Mat new_glass_outer = inner_glass_mask(Rect(temp.cols / 2 - newwidth / 2, temp.rows / 2 - newheight / 2, newwidth, newheight));
-			findContours(new_glass_outer, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
+			findContours(new_glass_outer.clone(), contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
 			vector<Point> silkprint_inner_contour = contours[0];	//记录内部镜面轮廓（即丝印内部轮廓）
 
 			Mat element = getStructuringElement(MORPH_RECT, Size(10, 10));
@@ -248,8 +258,8 @@ void Filter::imageMatting2(vector<Mat> &silkPrint_show_list, vector<double> imag
 			morphologyEx(thres, thres, MORPH_OPEN, element);	//开操作消除较小明亮区域
 			element = getStructuringElement(MORPH_RECT, Size(25, 25));
 			morphologyEx(thres, thres, MORPH_CLOSE, element);	//闭操作消除低亮度的孤立点
-			findContours(thres, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
 			//imshow("thres", thres);
+			findContours(thres, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
 			vector<Point> silkprint_outer_contour = contours[1];	//记录丝印外部轮廓
 
 			vector<vector<Point>> sk_contours;	//记录丝印内外轮廓
@@ -275,6 +285,7 @@ void Filter::imageMatting2(vector<Mat> &silkPrint_show_list, vector<double> imag
 			drawContours(silkprint, sk_contours, 1, Scalar(0), 3, 8);
 			element = getStructuringElement(MORPH_RECT, Size(3, 3));
 			morphologyEx(silkprint, silkprint, MORPH_OPEN, element);	//开操作去除较小的明亮区域
+			//imshow("silkprint", silkprint);
 			silkprint_list.push_back(silkprint);
 
 			/*----------------------------------------------------------------*/
