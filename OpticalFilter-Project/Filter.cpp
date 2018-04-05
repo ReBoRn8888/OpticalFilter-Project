@@ -19,7 +19,6 @@ Filter::Filter(string filepath, string postFix, int num)
 	srcImg3 = image3.clone();
 	vector<Point2f>mycenter(item_num); float myradius;
 
-	//imwrite("BG2.bmp", image2);
 	vector<int> outGlass(item_num);
 
 	vector<vector<Mat>> Six_area;
@@ -43,7 +42,6 @@ Filter::Filter(string filepath, string postFix, int num)
 		putText(image3, to_string(i + 1), newcenter.at(i), FONT_HERSHEY_PLAIN, 5, Scalar(100), 5, 8);
 
 		whetherGlassed.push_back(outGlass[i]);
-		//imwrite("tempROI.jpg", Six_area[i]);
 	}
 }
 
@@ -133,23 +131,23 @@ void Filter::imageMatting(vector<Mat> &silkPrint_show_list, vector<double> image
 			glass_mask = glass_mask(Rect(temp.cols / 2 - newwidth / 2, temp.rows / 2 - newheight / 2, newwidth, newheight));	//调整glass_mask尺寸
 
 			/*----------------------------------------------------------------*/
-			/*-------------------------滤光片提取模块-------------------------*/
+			/*--------------------------滤光片提取模块-------------------------*/
 			/*----------------------------------------------------------------*/
 			Mat glass;  //用于存储提取出的滤光片镜面部分
 			roi3(Rect(temp.cols / 2 - newwidth / 2, temp.rows / 2 - newheight / 2, newwidth, newheight)).copyTo(glass, glass_mask);  //提取出滤光片镜面
 			glass_list.push_back(glass);
 
 			/*----------------------------------------------------------------*/
-			/*--------------------------丝印提取模块--------------------------*/
+			/*---------------------------丝印提取模块--------------------------*/
 			/*----------------------------------------------------------------*/
 			findContours(glass_mask, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
 			Mat glass_thres;
 			threshold(glass, glass_thres, 0, 255.0, CV_THRESH_BINARY);
 			IplImage ipl = (IplImage)whole;
 			int th = Otsu(&ipl);
-			cout << th << endl;
+			//cout << th << endl;
 			drawContours(whole, contours, -1, Scalar(0), 15, 8);
-			threshold(whole, whole, th * 11 / 29, 255, CV_THRESH_BINARY);
+			threshold(whole, whole, th * 11 / 29, 255, CV_THRESH_BINARY);	//二值化，阈值的百分比需要调整
 			Mat silkprint; //用于存储提取出的丝印部分
 			silkprint = whole + glass_thres;//通过与二值化的镜面部分相加，来提取出丝印部分
 			Mat element = getStructuringElement(MORPH_RECT, Size(5, 5));
@@ -252,7 +250,7 @@ void Filter::imageMatting2(vector<Mat> &silkPrint_show_list, vector<double> imag
 			Mat thres;
 			IplImage ipl = (IplImage)whole;
 			int th = Otsu(&ipl);
-			threshold(whole, thres, th * 17 / 19, 255.0, CV_THRESH_BINARY);    //二值化
+			threshold(whole, thres, th * 17 / 19, 255.0, CV_THRESH_BINARY);    //二值化，阈值的百分比需要调整
 			thres = thres - new_glass_outer;
 			element = getStructuringElement(MORPH_RECT, Size(9, 9));
 			morphologyEx(thres, thres, MORPH_OPEN, element);	//开操作消除较小明亮区域
@@ -274,14 +272,14 @@ void Filter::imageMatting2(vector<Mat> &silkPrint_show_list, vector<double> imag
 			bitwise_not(silkprint_mask, glass_mask);
 
 			/*----------------------------------------------------------------*/
-			/*--------------------------丝印提取模块--------------------------*/
+			/*---------------------------丝印提取模块--------------------------*/
 			/*----------------------------------------------------------------*/
 			Mat kernel = (Mat_<float>(3, 3) << 0, -1, 0, 0, 3.3, 0, 0, -1, 0);
 			filter2D(whole, whole, CV_8UC1, kernel);
 			Mat silkprint = whole + glass_mask;
 			ipl = (IplImage)silkprint;
 			th = Otsu(&ipl);
-			threshold(silkprint, silkprint, th * 102 / 107, 255.0, CV_THRESH_BINARY);    //二值化
+			threshold(silkprint, silkprint, th * 102 / 107, 255.0, CV_THRESH_BINARY);    //二值化，阈值的百分比需要调整
 			drawContours(silkprint, sk_contours, 1, Scalar(0), 3, 8);
 			element = getStructuringElement(MORPH_RECT, Size(3, 3));
 			morphologyEx(silkprint, silkprint, MORPH_OPEN, element);	//开操作去除较小的明亮区域
@@ -289,7 +287,7 @@ void Filter::imageMatting2(vector<Mat> &silkPrint_show_list, vector<double> imag
 			silkprint_list.push_back(silkprint);
 
 			/*----------------------------------------------------------------*/
-			/*-------------------------滤光片提取模块-------------------------*/
+			/*--------------------------滤光片提取模块-------------------------*/
 			/*----------------------------------------------------------------*/
 			Mat inner_glass = roi3(Rect(temp.cols / 2 - newwidth / 2, temp.rows / 2 - newheight / 2, newwidth, newheight));
 			//通过众数取得内部镜面的整体颜色
