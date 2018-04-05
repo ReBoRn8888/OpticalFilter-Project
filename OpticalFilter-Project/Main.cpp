@@ -2,17 +2,23 @@
 #include "Filter.h"
 #include <thread>
 #include <windows.h>
+#include <iostream>
+#include <fstream>
 
 using namespace std;
 using namespace cv;
 
 DWORD start, stop;
+int silkprint_flag[6] = { 0, 0, 0, 0, 0, 0 };
+int glass_flag[6] = { 0, 0, 0, 0, 0, 0 };
 
 void silkprintThread(Filter thisFilter, int radiusThres_silkprint, int contourAreaThres_silkprint, vector<Mat> silkPrint_show_list,int areaID)//这个线程检测丝印
 {
 	if (thisFilter.whetherGlassed[areaID] != 0)
 	{
-		if (silkprintDetect(thisFilter.silkprint_list[areaID], radiusThres_silkprint, contourAreaThres_silkprint, silkPrint_show_list[areaID])!=0)
+		int flag = silkprintDetect(thisFilter.silkprint_list[areaID], radiusThres_silkprint, contourAreaThres_silkprint, silkPrint_show_list[areaID]);
+		silkprint_flag[areaID] = flag;
+		if (flag != 0)
 		{
 			stop = GetTickCount();
 			cout << "Area:" + Int_to_String(areaID) + " Silk defected\ttime: " << stop - start << " ms\n" << endl;
@@ -29,7 +35,9 @@ void glassThread(Filter thisFilter, int radiusThres_glass, int contourAreaThres_
 {
 	if (thisFilter.whetherGlassed[areaID] != 0)
 	{
-		if (glassDetect(thisFilter.glass_list[areaID], radiusThres_glass, contourAreaThres_glass) != 0)
+		int flag = glassDetect(thisFilter.glass_list[areaID], radiusThres_glass, contourAreaThres_glass);
+		glass_flag[areaID] = flag;
+		if (flag != 0)
 		{
 			stop = GetTickCount();
 			cout << "Area:" + Int_to_String(areaID) + " Glass defected\ttime: " << stop - start << " ms" << endl;
@@ -40,7 +48,7 @@ void glassThread(Filter thisFilter, int radiusThres_glass, int contourAreaThres_
 
 int main()
 {
-	int num = 0;		//当前第几组图片，编号从0开始
+	int num = 6;		//当前第几组图片，编号从0开始
 	int typeIndex = 0;	//选择图片类型
 	vector<string> type = { "Flat_Sprinting", "Flat_NoSprinting", "DoubleCam", "Thread", "New" };	//输入图片的类型
 	int item_num = 6;	//一张图片中的滤光片数量
@@ -56,15 +64,12 @@ int main()
 	//thisFilter.GetRoi(filepath[typeIndex], postFix, num);	//粗定位出每个滤光片
 
 
-
 	vector<vector<double>> image_sizes = getImageSize(type[typeIndex]);	//获取滤光片大小矩形的长宽
 
-	if (typeIndex == 0 && num == 3 || typeIndex == 0 && num == 6) {		//针对外部透光的图片
+	if (typeIndex == 0 && num == 3 || typeIndex == 0 && num == 6)		//针对外部透光的图片
 		thisFilter.imageMatting2(silkPrint_show_list, image_sizes[num]);//分别提取出丝印和镜面部分
-	}
-	else {
+	else
 		thisFilter.imageMatting(silkPrint_show_list, image_sizes[num]);	//分别提取出丝印和镜面部分
-	}
 
 	//到这里就把所有我们所需要提取的数据都拿出来了；接下来可以常使用多线程来处理。
 
@@ -75,15 +80,29 @@ int main()
 	int contourAreaThres_silkprint = 80;	//检测到的轮廓的面积的阈值，若轮廓面积大于该阈值，则是缺陷
 
 	start = GetTickCount();
-	for (int areaID = 0; areaID < item_num; areaID++)	//线程并行执行
+	int areaID;
+	for (areaID = 0; areaID < item_num - 1; areaID++)	//线程并行执行
 	{
 		thread OuterSilk(silkprintThread, thisFilter, radiusThres_silkprint, contourAreaThres_silkprint, silkPrint_show_list, areaID);	//丝印检测线程
 		thread InnerGlass(glassThread, thisFilter, radiusThres_glass, contourAreaThres_glass, areaID);       //镜面检测线程
-
 		OuterSilk.detach(); 
 		InnerGlass.detach(); 
 	}
-	waitKey();
+	thread OuterSilk(silkprintThread, thisFilter, radiusThres_silkprint, contourAreaThres_silkprint, silkPrint_show_list, areaID);	//丝印检测线程
+	thread InnerGlass(glassThread, thisFilter, radiusThres_glass, contourAreaThres_glass, areaID);       //镜面检测线程
+	OuterSilk.join();	//最后一个线程用join，表示只有当该线程结束之后才继续执行主进程
+	InnerGlass.join();	//最后一个线程用join，表示只有当该线程结束之后才继续执行主进程
 
-	getchar();	//为了让命令行窗口在执行完后不马上关闭
+	//将检测结果输出文件
+	ofstream out("result.txt", ios::trunc);
+	if (out.is_open())
+	{
+		for (int i = 0; i < sizeof(silkprint_flag) / sizeof(silkprint_flag[0]); i++){
+			if (silkprint_flag[i] == 1 || glass_flag[i] == 1)
+				out << "<" << i + 1 << ">号滤光片有缺陷" << endl;
+		}
+		out.close();
+	}
+	waitKey();
+	//getchar();	//为了让命令行窗口在执行完后不马上关闭
 }

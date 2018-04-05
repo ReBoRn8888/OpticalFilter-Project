@@ -22,8 +22,8 @@ int glassDetect(Mat& glass, int radiusThres, int contourAreaThres)
 	erode(addResult, addResult, element);
 	IplImage ipl = (IplImage)addResult;
 	int th = Otsu(&ipl);
-	threshold(addResult, addResult, th * 32 / 43, 255, CV_THRESH_BINARY);
-	rectangle(addResult, Rect(Point(0, 0), Point(addResult.cols - 1, addResult.rows - 1)), Scalar(255), 1);
+	threshold(addResult, addResult, th * 33 / 43, 255, CV_THRESH_BINARY);
+	rectangle(addResult, Rect(Point(0, 0), Point(addResult.cols - 1, addResult.rows - 1)), Scalar(255), 3);
 	element = getStructuringElement(MORPH_RECT, Size(3, 3));
 	morphologyEx(addResult, addResult, MORPH_CLOSE, element);
 	findContours(addResult, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
@@ -34,7 +34,7 @@ int glassDetect(Mat& glass, int radiusThres, int contourAreaThres)
 		float radius;
 		minEnclosingCircle(contours[index], center, radius);	//计算轮廓的最小外接圆
 		int area = contourArea(contours[index]);	//计算轮廓面积
-		int scale = 2;
+		int scale = 3;
 		if (center.x > scale && center.x < glass.cols - scale && center.y > scale && center.y < glass.rows - scale && area < (glass.cols * glass.rows / 2) && radius < glass.cols * 2 / 5) {	//过滤掉太边缘的轮廓以及太大的轮廓
 			if (radius >= radiusThres || area >= contourAreaThres) {	//若最小外接圆的半径大于"radiusThres",或轮廓面积大于"contourAreaThres"，则判断为缺陷
 				circle(glass, center, radius, Scalar(255), 2, 8);
