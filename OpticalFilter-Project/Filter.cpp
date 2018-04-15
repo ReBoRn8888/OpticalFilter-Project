@@ -3,7 +3,6 @@
 
 Point tl, tr, bl, br;
 
-
 Filter::Filter(string filepath, string postFix, int num)
 {
 	Mat image1, image2, image3, image4; int length; double ratio = 1.2;
@@ -44,7 +43,6 @@ Filter::Filter(string filepath, string postFix, int num)
 		whetherGlassed.push_back(outGlass[i]);
 	}
 }
-
 
 void Filter::imageMatting(vector<Mat> &silkPrint_show_list, vector<double> image_size) 
 {
@@ -150,6 +148,7 @@ void Filter::imageMatting(vector<Mat> &silkPrint_show_list, vector<double> image
 			threshold(whole, whole, th * 11 / 29, 255, CV_THRESH_BINARY);	//二值化，阈值的百分比需要调整
 			Mat silkprint; //用于存储提取出的丝印部分
 			silkprint = whole + glass_thres;//通过与二值化的镜面部分相加，来提取出丝印部分
+			//imshow("silkprint", silkprint);
 			Mat element = getStructuringElement(MORPH_RECT, Size(5, 5));
 			morphologyEx(silkprint, silkprint, MORPH_CLOSE, element);
 			dilate(silkprint, silkprint, element, Point(-1, -1), 1);

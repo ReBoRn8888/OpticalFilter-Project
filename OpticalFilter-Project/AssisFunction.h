@@ -12,7 +12,6 @@
 using namespace cv;
 using namespace std;
 
-
 void ImageSharp(Mat &src, Mat &dst);//Sharp function
 
 int Otsu(IplImage* src);
@@ -33,5 +32,9 @@ int glassDetect(Mat& glass, int radiusThres, int contourAreaThres);
 int silkprintDetect(Mat silkprint, int radiusThres, int contourAreaThres, Mat &show_list);
 
 int getModeNumber(vector<int>);
+
+vector<string> split(const string &, const string &);
+
+void getConfigInfo(vector<double>&, double&);
 
 #endif

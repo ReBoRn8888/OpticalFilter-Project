@@ -1,4 +1,5 @@
 #include "AssisFunction.h"
+#include "INIParser.h"
 
 class d3sort {
 public:
@@ -104,6 +105,17 @@ vector<vector<double>> getImageSize(string type) {
 	}
 
 	return image_sizes;
+}
+
+void getConfigInfo(vector<double>& image_sizes, double& type){
+	//读取ini文件
+	INIParser ini_parser;
+	ini_parser.ReadINI("config.ini");
+	image_sizes.push_back(atof(ini_parser.GetValue("Shape", "width_out").c_str()));
+	image_sizes.push_back(atof(ini_parser.GetValue("Shape", "height_out").c_str()));
+	image_sizes.push_back(atof(ini_parser.GetValue("Shape", "width_in").c_str()));
+	image_sizes.push_back(atof(ini_parser.GetValue("Shape", "height_in").c_str()));
+	type = atof(ini_parser.GetValue("Type", "type").c_str());
 }
 
 string Int_to_String(int n)
@@ -383,4 +395,22 @@ int getModeNumber(vector<int> ll) {
 		k = j;//位置后移到下一个未出现的数字  
 	}
 	return ll[index];
+}
+
+vector<string> split(const string &str, const string &pattern)
+{
+	//const char* convert to char*
+	char * strc = new char[strlen(str.c_str()) + 1];
+	strcpy(strc, str.c_str());
+	vector<string> resultVec;
+	char* tmpStr = strtok(strc, pattern.c_str());
+	while (tmpStr != NULL)
+	{
+		resultVec.push_back(string(tmpStr));
+		tmpStr = strtok(NULL, pattern.c_str());
+	}
+
+	delete[] strc;
+
+	return resultVec;
 }

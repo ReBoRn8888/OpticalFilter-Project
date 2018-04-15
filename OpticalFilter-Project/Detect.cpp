@@ -37,7 +37,7 @@ int glassDetect(Mat& glass, int radiusThres, int contourAreaThres)
 		int scale = 3;
 		if (center.x > scale && center.x < glass.cols - scale && center.y > scale && center.y < glass.rows - scale && area < (glass.cols * glass.rows / 2) && radius < glass.cols * 2 / 5) {	//过滤掉太边缘的轮廓以及太大的轮廓
 			if (radius >= radiusThres || area >= contourAreaThres) {	//若最小外接圆的半径大于"radiusThres",或轮廓面积大于"contourAreaThres"，则判断为缺陷
-				circle(glass, center, radius, Scalar(255), 2, 8);
+				//circle(glass, center, radius, Scalar(255), 2, 8);
 				drawContours(glass, contours, index, Scalar(255), 2, 8);
 				defect_flag = 1;
 			}
@@ -67,7 +67,7 @@ int silkprintDetect(Mat silkprint, int radiusThres, int contourAreaThres, Mat &s
 		int scale = 5;
 		if (center.x > scale && center.x < show_list.cols - scale && center.y > scale && center.y < show_list.rows - scale && area < show_list.cols * show_list.rows / 2 && radius < show_list.cols * 2 / 5) {	//过滤掉太边缘的轮廓以及太大的轮廓
 			if (radius >= radiusThres || area >= contourAreaThres) {	//若最小外接圆的半径大于"radiusThres",或轮廓面积大于"contourAreaThres"，则判断为缺陷
-				circle(show_list, center, radius, Scalar(255), 2, 8);
+				//circle(show_list, center, radius, Scalar(255), 2, 8);
 				drawContours(show_list, contours, index, Scalar(255), 2, 8);
 				defect_flag = 1;
 			}
