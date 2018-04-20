@@ -7,7 +7,6 @@
 using namespace std;
 using namespace cv;
 
-DWORD start, stop;
 SinglefilterMessage SingleResult[6];
 
 void detectThread(Filter thisFilter, int radiusThres_silkprint, int contourAreaThres_silkprint, int radiusThres_glass, int contourAreaThres_glass, vector<Mat> silkPrint_show_list, int areaID)//滤光片检测线程
@@ -17,12 +16,12 @@ void detectThread(Filter thisFilter, int radiusThres_silkprint, int contourAreaT
 	if (thisFilter.whetherGlassed[areaID] != 0){
 		int silkprint_flag = silkprintDetect(thisFilter.silkprint_list[areaID], radiusThres_silkprint, contourAreaThres_silkprint, silkPrint_show_list[areaID]);
 		if (silkprint_flag != 0){
-			cout << "Area:" + Int_to_String(areaID) + " Silk defected\ttime: " << stop - start << " ms\n" << endl;
+			cout << "Area:" + Int_to_String(areaID) + " Silk defected" << endl;
 			imwrite(Int_to_String(areaID) + "silkprint.jpg", silkPrint_show_list[areaID]);
 		}
 		int glass_flag = glassDetect(thisFilter.glass_list[areaID], radiusThres_glass, contourAreaThres_glass);
 		if (glass_flag != 0){
-			cout << "Area:" + Int_to_String(areaID) + " Glass defected\ttime: " << stop - start << " ms" << endl;
+			cout << "Area:" + Int_to_String(areaID) + " Glass defected" << endl;
 			imwrite(Int_to_String(areaID) + "glass.jpg", thisFilter.glass_list[areaID]);
 		}
 		if (silkprint_flag || glass_flag)
@@ -35,7 +34,7 @@ void detectThread(Filter thisFilter, int radiusThres_silkprint, int contourAreaT
 
 int main()
 {
-	int num = 4;		//当前第几组图片，编号从0开始
+	int num = 1;		//当前第几组图片，编号从0开始
 	int typeIndex = 0;	//选择图片类型
 	//vector<string> type = { "Flat_Sprinting", "Flat_NoSprinting", "DoubleCam", "Thread", "New" };	//输入图片的类型
 	int item_num = 6;	//一张图片中的滤光片数量

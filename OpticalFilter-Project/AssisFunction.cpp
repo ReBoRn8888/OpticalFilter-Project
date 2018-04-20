@@ -332,7 +332,7 @@ vector<int>GetArea(Mat img, int item_num, vector<Point2f>&mycenter, float&myradi
 		Scalar color = Scalar(255, 255, 255);
 		if (contours[i].size()>200)
 		{
-			cout << contourArea(contours[i]) << endl;
+			//cout << contourArea(contours[i]) << endl;
 			drawContours(drawing, contours, i, color, 2, 8, hierarchy, 0, Point());
 		}
 		//circle(drawing, center[i], (int)radius[i], color, 2, 8, 0);   //外接圆
@@ -357,7 +357,7 @@ vector<int>GetArea(Mat img, int item_num, vector<Point2f>&mycenter, float&myradi
 
 			approxPolyDP(Mat(contours[index]), contours_poly[Areacount], 3, true);//逼近曲线，应该要调整
 			minEnclosingCircle(contours_poly[Areacount], center[Areacount], radius[Areacount]);
-			if (xx / pedestalArea == 1)
+			if (xx / pedestalArea >= 1)
 				flagCount++;
 			if (comTemp > radius[Areacount])
 				comTemp = radius[Areacount];
@@ -401,18 +401,18 @@ int Get6th(vector<vector<Point>> contours,int& Filternum,int& lacks)//注意第二个
 	}
 	sort(idx.begin(), idx.end());
 
-	for (int j = 0; j < 5; j++)
+	for (int j = length-1; j > 0; j--)
 	{
 		int t;
-		if (idx.at(length - j - 2) == 0)
+		if (idx.at(j - 1) == 0)
 			t = 1;
 		else
-			t = idx.at(length - j - 2);
-		flag.push_back(idx.at(length - j - 1) / t);//标志
+			t = idx.at(j - 1);
+		flag.push_back(idx.at(j) / t);//标志
 	}
 	
 	
-	if (flag[0]>=3)
+	if (flag[0]>=3)//不足6块位置
 	{
 		count =1 ;
 		lacks = 1;
@@ -420,13 +420,13 @@ int Get6th(vector<vector<Point>> contours,int& Filternum,int& lacks)//注意第二个
 		{
 			FilterCount++;
 			count++;
-			if (count == 5)
+			if (count == flag.size())
 				break;
 		}
 		Filternum = FilterCount+1;
 		return idx.at(length - FilterCount-1);
 	}
-	else if (flag[0] == 1)
+	else if (flag[0] == 1)//6个位置有底座为空
 	{
 		count = 1;
 		FilterCount++;
@@ -434,11 +434,11 @@ int Get6th(vector<vector<Point>> contours,int& Filternum,int& lacks)//注意第二个
 		{
 			FilterCount++;
 			count++;
-			if (count == 5)
+			if (count == flag.size())
 				break;
 		}
 	}
-	else
+	else//6个位置都有滤光片
 	{
 		FilterCount = 6;
 	}
