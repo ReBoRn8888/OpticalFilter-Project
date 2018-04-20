@@ -3,10 +3,10 @@
 
 Point tl, tr, bl, br;
 
-Filter::Filter(string filepath, string postFix, int num)
+Filter::Filter(string filepath, string postFix, int num, int pedestalArea)
 {
 	Mat image1, image2, image3, image4; int length; double ratio = 1.2;
-	int item_num = 6; vector<string> tested_path;
+	vector<string> tested_path;
 	tested_path = pathGet(filepath, postFix);
 	image1 = imread(tested_path[num * 3], 0);
 	image2 = imread(tested_path[num * 3 + 1], 0);
@@ -16,31 +16,38 @@ Filter::Filter(string filepath, string postFix, int num)
 	srcImg1 = image1.clone();
 	srcImg2 = image2.clone();
 	srcImg3 = image3.clone();
-	vector<Point2f>mycenter(item_num); float myradius;
+	vector<Point2f>mycenter; float myradius;
 
-	vector<int> outGlass(item_num);
+	
 
 	vector<vector<Mat>> Six_area;
-	vector<Mat> Six_area1(item_num);
-	vector<Mat> Six_area2(item_num);
-	vector<Mat> Six_area3(item_num);
+	
 
-	vector<int> isGlass = GetArea(image3, item_num, mycenter, myradius);
 
-	vector<Point2f> newcenter = sortCenterpoint(mycenter, image1.rows / 2, isGlass, outGlass);
+	vector<int> isGlass = GetArea(image3, 6, mycenter, myradius,whetherNull,pedestalArea);
+	if (whetherNull == false){
+		int item_num = isGlass.size();
+		vector<int> outGlass(item_num);
+		vector<Mat> Six_area1(item_num);
+		vector<Mat> Six_area2(item_num);
+		vector<Mat> Six_area3(item_num);
 
-	for (int i = 0; i < item_num; i++)
-	{
-		length = myradius* ratio;
-		image1(Rect(newcenter.at(i).x - length, newcenter.at(i).y - length, length * 2, length * 2)).copyTo(Six_area1[i]);//第一张图ROI区域的输入
-		Area1.push_back(Six_area1[i]);
-		image2(Rect(newcenter.at(i).x - length, newcenter.at(i).y - length, length * 2, length * 2)).copyTo(Six_area2[i]);//第二张图ROI区域的输入
-		Area2.push_back(Six_area2[i]);
-		image4(Rect(newcenter.at(i).x - length, newcenter.at(i).y - length, length * 2, length * 2)).copyTo(Six_area3[i]);//第三张图ROI区域的输入
-		Area3.push_back(Six_area3[i]);
-		putText(image3, to_string(i + 1), newcenter.at(i), FONT_HERSHEY_PLAIN, 5, Scalar(100), 5, 8);
+		vector<Point2f> newcenter = sortCenterpoint(mycenter, image1.rows / 2, isGlass, outGlass);
 
-		whetherGlassed.push_back(outGlass[i]);
+		for (int i = 0; i < item_num; i++)
+		{
+			length = myradius* ratio;
+			image1(Rect(newcenter.at(i).x - length, newcenter.at(i).y - length, length * 2, length * 2)).copyTo(Six_area1[i]);//第一张图ROI区域的输入
+			Area1.push_back(Six_area1[i]);
+			image2(Rect(newcenter.at(i).x - length, newcenter.at(i).y - length, length * 2, length * 2)).copyTo(Six_area2[i]);//第二张图ROI区域的输入
+			Area2.push_back(Six_area2[i]);
+			image4(Rect(newcenter.at(i).x - length, newcenter.at(i).y - length, length * 2, length * 2)).copyTo(Six_area3[i]);//第三张图ROI区域的输入
+			Area3.push_back(Six_area3[i]);
+			putText(image3, to_string(i + 1), newcenter.at(i), FONT_HERSHEY_PLAIN, 5, Scalar(100), 5, 8);
+		
+			whetherGlassed.push_back(outGlass[i]);
+		}
+		imwrite("label.jpg", image3);
 	}
 }
 

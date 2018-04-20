@@ -24,8 +24,8 @@ float RotatedDegree(Mat rotaImg);
 
 string Int_to_String(int n);
 
-int Get6th(vector<vector<Point>> contours, int Area_num);
-vector<int> GetArea(Mat, int, vector<Point2f>&, float&);
+int Get6th(vector<vector<Point>> contours, int& Filternum,int& lacks);//返回第六个数的大小，如果滤光片加底座的数量小于6，那么将最后的数量赋值给Fileternum
+vector<int> GetArea(Mat, int, vector<Point2f>&, float&, bool&, int);
 vector<Point2f>sortCenterpoint(vector<Point2f> centers, int middle, vector<int>isGlassed, vector<int>&OutGlassed);
 
 int glassDetect(Mat& glass, int radiusThres, int contourAreaThres);
@@ -36,5 +36,7 @@ int getModeNumber(vector<int>);
 vector<string> split(const string &, const string &);
 
 void getConfigInfo(vector<double>&, double&);
+
+
 
 #endif

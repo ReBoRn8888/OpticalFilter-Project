@@ -296,22 +296,23 @@ vector<Point2f>sortCenterpoint(vector<Point2f> centers, int middle, vector<int>i
 	sort(vectA.begin(), vectA.end());
 	sort(vectB.begin(), vectB.end());
 
+	for (int i = 0; i < vectB.size(); i++)
+	{
+		new_center.push_back(Point2f(vectB[i].first, vectB[i].second));
+		NewisGlassed.push_back(vectB[i].third);
+	}
+
 	for (int i = 0; i < vectA.size(); i++)
 	{
 		new_center.push_back(Point2f(vectA[i].first, vectA[i].second));
 		NewisGlassed.push_back(vectA[i].third);
 	}
 
-	for (int i = 0; i < vectB.size(); i++)
-	{
-		new_center.push_back(Point2f(vectB[i].first, vectB[i].second));
-		NewisGlassed.push_back(vectB[i].third);
-	}
 	OutGlassed = NewisGlassed;
 	return new_center;
 }
 
-vector<int>GetArea(Mat img, int item_num, vector<Point2f>&mycenter, float&myradius)
+vector<int>GetArea(Mat img, int item_num, vector<Point2f>&mycenter, float&myradius,bool&whetherNull, int pedestalArea)
 {
 	Mat edge;
 	threshold(img, edge, 120, 255, 0);
@@ -320,28 +321,48 @@ vector<int>GetArea(Mat img, int item_num, vector<Point2f>&mycenter, float&myradi
 	vector<vector<Point>> contours;
 	vector<Vec4i> hierarchy;
 
-	vector <vector<Point>> contours_poly(item_num);
-	vector<Point2f>  center(item_num);
-	vector<float> radius(item_num);
-	vector<int> isGlass(item_num);
+
 
 	findContours(edge, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);//这东西好像会直接搞坏掉原图
-	int index = 0; int comTemp = 10000000000; int Areacount = 0;
-	int the_num = Get6th(contours, item_num);
+	Mat drawing;
+	dstImg.copyTo(drawing);
+
+	for (int i = 0; i < contours.size(); i++)
+	{
+		Scalar color = Scalar(255, 255, 255);
+		if (contours[i].size()>200)
+		{
+			cout << contourArea(contours[i]) << endl;
+			drawContours(drawing, contours, i, color, 2, 8, hierarchy, 0, Point());
+		}
+		//circle(drawing, center[i], (int)radius[i], color, 2, 8, 0);   //外接圆
+	}
+
+	int index = 0; int comTemp = 10000000000; int Areacount = 0; int filterAndnull = 0; int lacks = 0;
+	int the_num = Get6th(contours, filterAndnull,lacks);
+	filterAndnull = filterAndnull - lacks;
+
+	vector <vector<Point>> contours_poly(filterAndnull);
+	vector<Point2f>  center(filterAndnull);
+	vector<float> radius(filterAndnull);
+	vector<int> isGlass(filterAndnull);
+
+	int flagCount=0;
 	for (; index >= 0; index = hierarchy[index][0])
 	{
 		Scalar color(255);
-		int xx = arcLength(contours[index], true);
-		if (arcLength(contours[index], true) >= the_num)
+		int xx = contourArea(contours[index]);
+		if (xx>= the_num && xx<the_num*3)
 		{
 
 			approxPolyDP(Mat(contours[index]), contours_poly[Areacount], 3, true);//逼近曲线，应该要调整
 			minEnclosingCircle(contours_poly[Areacount], center[Areacount], radius[Areacount]);
-
+			if (xx / pedestalArea == 1)
+				flagCount++;
 			if (comTemp > radius[Areacount])
 				comTemp = radius[Areacount];
 			//areaCount++;
-			if (arcLength(contours[index], true) < the_num*1.2)
+			if (contourArea(contours[index]) < the_num*1.2)
 				isGlass[Areacount] = 1;
 			else
 				isGlass[Areacount] = 0;
@@ -351,25 +372,82 @@ vector<int>GetArea(Mat img, int item_num, vector<Point2f>&mycenter, float&myradi
 		}
 
 	}
+	if (flagCount == filterAndnull)
+	{
+		whetherNull = 1;
+	}
+	else
+	{
+		whetherNull = 0;
+	}
 	myradius = comTemp;
 	mycenter = center;
 
 	return isGlass;
 }
 
-int Get6th(vector<vector<Point>> contours, int Area_num)//注意第二个参数不能乱取，一定要少于总轮廓的数量，>0
+int Get6th(vector<vector<Point>> contours,int& Filternum,int& lacks)//注意第二个参数不能乱取，一定要少于总轮廓的数量，>0
 {
-	int length = contours.size();
-	vector<int> idx;
+	int length = contours.size(); vector<int> flag; int frontFlag = 1;
+	vector<int> idx; int FilterCount = 1; int count;
+	int front=1;
+	int next = 1;
+
 	double g_dConLength;
 	for (int i = 0; i < length; i++)
 	{
-		g_dConLength = arcLength(contours[i], true);
+		g_dConLength = contourArea(contours[i]);
 		idx.push_back(g_dConLength);
 	}
 	sort(idx.begin(), idx.end());
 
-	return idx.at(length - Area_num);
+	for (int j = 0; j < 5; j++)
+	{
+		int t;
+		if (idx.at(length - j - 2) == 0)
+			t = 1;
+		else
+			t = idx.at(length - j - 2);
+		flag.push_back(idx.at(length - j - 1) / t);//标志
+	}
+	
+	
+	if (flag[0]>=3)
+	{
+		count =1 ;
+		lacks = 1;
+		while (flag[count] == 1 || flag[count]==2)
+		{
+			FilterCount++;
+			count++;
+			if (count == 5)
+				break;
+		}
+		Filternum = FilterCount+1;
+		return idx.at(length - FilterCount-1);
+	}
+	else if (flag[0] == 1)
+	{
+		count = 1;
+		FilterCount++;
+		while (flag[count] == 1 || flag[count] == 2)
+		{
+			FilterCount++;
+			count++;
+			if (count == 5)
+				break;
+		}
+	}
+	else
+	{
+		FilterCount = 6;
+	}
+
+	Filternum = FilterCount;
+	return idx.at(length - FilterCount);
+
+
+	
 
 }
 
