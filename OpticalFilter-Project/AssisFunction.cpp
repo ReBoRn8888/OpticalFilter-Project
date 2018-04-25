@@ -1,5 +1,4 @@
 #include "AssisFunction.h"
-#include "INIParser.h"
 
 class d3sort {
 public:
@@ -11,112 +10,6 @@ public:
 		return first < m.first;
 	}
 };
-
-
-vector<vector<double>> getImageSize(string type) {
-	/*********************************************************************************************************/
-	/*	num				--		image_size[0]	,	image_size[1]	,	image_size[2]	,	image_size[3]
-	/*											（扁平丝印）
-	/*	0(1 2 3)		--		728,563,576,435
-	/*	1(4 5 6)		--		660,810,576,720
-	/*	2(7 8 9)		--		576,714,456,594
-	/*	3(10 11 12)		--		600,732,456,606
-	/*	4(13 14 15)		--		762,636,642,492
-	/*	5(16 17 18)		--		642,576,648,348
-	/*	6(19 20 21)		--		666,744,498,630
-	/*
-	/*											（扁平非丝印）
-	/*	0(1 2 3)		--		628,727,528,660
-	/*	1(4 5 6)		--		648,720,534,654
-	/*	2(7 8 9)		--		738,594,582,486
-	/*	3(10 11 12)		--		720,594,600,468
-	/*	4(13 14 15)		--		720,588,672,522
-	/*	5(16 17 18)		--		720,606,660,528
-	/*	6(19 20 21)		--		725,588,672,528
-	/*
-	/*	image_size[0]--外部大矩形实际测量的宽度，需要人工给出该参数的值
-	/*	image_size[1]--外部大矩形实际测量的高度，需要人工给出该参数的值
-	/*	image_size[2]--内部小矩形实际测量的宽度，需要人工给出该参数的值
-	/*	image_size[3]--内部小矩形实际测量的高度，需要人工给出该参数的值
-	/*********************************************************************************************************/
-	vector<vector<double>> image_sizes;
-	if (type == "Flat_Sprinting") {
-		image_sizes.push_back({ 24.77, 19.62, 20.25, 15.35 });
-		image_sizes.push_back({ 21.89, 27.54, 20.14, 25.71 });
-		image_sizes.push_back({ 18.68, 23.71, 16.01, 21.04 });
-		image_sizes.push_back({ 20.69, 25.50, 16.24, 21.24 });
-		image_sizes.push_back({ 25.99, 20.71, 22.88, 17.51 });
-		image_sizes.push_back({ 20.92, 19.06, 16.54, 12.80 });
-		image_sizes.push_back({ 22.68, 25.37, 17.08, 22.46 });
-	}
-	else if (type == "Flat_NoSprinting") {
-		image_sizes.push_back({ 628,727,528,660 });
-		image_sizes.push_back({ 648,720,534,654 });
-		image_sizes.push_back({ 25.14, 20.53, 23.44, 18.79 });
-		image_sizes.push_back({ 25.14, 20.48, 23.38, 18.76 });
-		image_sizes.push_back({ 25.27, 20.34, 23.41, 18.86 });
-		image_sizes.push_back({ 720,606,660,528 });
-		image_sizes.push_back({ 725,588,672,528 });
-	}
-	else if (type == "Thread") {
-		image_sizes.push_back({ 0, 0, 0, 0 });
-		image_sizes.push_back({ 0, 0, 0, 0 });
-		image_sizes.push_back({ 15.02, 11.61, 13.41, 10.58 });
-		image_sizes.push_back({ 0, 0, 0, 0 });
-	}
-	else if (type == "New") {
-		image_sizes.push_back({ 750,618,636,498 });
-		image_sizes.push_back({ 762,594,642,480 });
-		image_sizes.push_back({ 768,612,648,480 });
-		image_sizes.push_back({ 768,624,642,480 });
-		image_sizes.push_back({ 756,600,648,486 });
-		image_sizes.push_back({ 762,618,648,480 });
-		image_sizes.push_back({ 762,612,636,486 });
-		image_sizes.push_back({ 756,618,648,486 });
-		image_sizes.push_back({ 750,612,648,486 });
-		image_sizes.push_back({ 774,606,654,486 });
-		image_sizes.push_back({ 558,714,498,624 });
-		image_sizes.push_back({ 558,702,486,624 });
-		image_sizes.push_back({ 564,672,504,630 });
-		image_sizes.push_back({ 570,684,498,624 });
-		image_sizes.push_back({ 558,690,492,624 });
-		image_sizes.push_back({ 756,582,576,408 });
-		image_sizes.push_back({ 564,672,486,618 });
-		image_sizes.push_back({ 768,588,558,402 });
-		image_sizes.push_back({ 570,684,486,618 });
-		image_sizes.push_back({ 552,684,492,624 });
-		image_sizes.push_back({ 552,708,492,630 });
-		image_sizes.push_back({ 558,702,486,630 });
-		image_sizes.push_back({ 564,684,504,630 });
-		image_sizes.push_back({ 516,528,498,624 });
-		image_sizes.push_back({ 750,600,570,432 });
-		image_sizes.push_back({ 606,732,534,654 });
-		image_sizes.push_back({ 606,720,552,654 });
-		image_sizes.push_back({ 588,714,546,660 });
-		image_sizes.push_back({ 606,714,534,684 });
-		image_sizes.push_back({ 744,600,672,522 });
-		image_sizes.push_back({ 732,594,672,534 });
-		image_sizes.push_back({ 720,606,672,516 });
-		image_sizes.push_back({ 726,582,678,534 });
-		image_sizes.push_back({ 726,576,678,528 });
-		image_sizes.push_back({ 732,606,654,540 });
-		image_sizes.push_back({ 732,588,678,528 });
-		image_sizes.push_back({ 726,588,666,534 });
-	}
-
-	return image_sizes;
-}
-
-void getConfigInfo(vector<double>& image_sizes, double& type){
-	//读取ini文件
-	INIParser ini_parser;
-	ini_parser.ReadINI("config.ini");
-	image_sizes.push_back(atof(ini_parser.GetValue("Shape", "width_out").c_str()));
-	image_sizes.push_back(atof(ini_parser.GetValue("Shape", "height_out").c_str()));
-	image_sizes.push_back(atof(ini_parser.GetValue("Shape", "width_in").c_str()));
-	image_sizes.push_back(atof(ini_parser.GetValue("Shape", "height_in").c_str()));
-	type = atof(ini_parser.GetValue("Type", "type").c_str());
-}
 
 string Int_to_String(int n)
 
@@ -312,7 +205,7 @@ vector<Point2f>sortCenterpoint(vector<Point2f> centers, int middle, vector<int>i
 	return new_center;
 }
 
-vector<int>GetArea(Mat img, int item_num, vector<Point2f>&mycenter, float&myradius,bool&whetherNull, int pedestalArea)
+vector<int>GetArea(Mat img, int item_num, vector<Point2f>&mycenter,bool&whetherNull, int filterArea)
 {
 	Mat edge;
 	threshold(img, edge, 120, 255, 0);
@@ -338,58 +231,48 @@ vector<int>GetArea(Mat img, int item_num, vector<Point2f>&mycenter, float&myradi
 		//circle(drawing, center[i], (int)radius[i], color, 2, 8, 0);   //外接圆
 	}
 
-	int index = 0; int comTemp = 10000000000; int Areacount = 0; int filterAndnull = 0; int lacks = 0;
-	int the_num = Get6th(contours, filterAndnull,lacks);
-	filterAndnull = filterAndnull - lacks;
+	int index = 0; int comTemp = 10000000000; int Areacount = 0; int filterAndnull = 0; 
+	int the_num = Get6th(contours, filterAndnull, filterArea);//这个the_num 可以作为以后判断的标志位，如果没有滤光片返回-1，有则返回滤光片数量
+
 
 	vector <vector<Point>> contours_poly(filterAndnull);
 	vector<Point2f>  center(filterAndnull);
 	vector<float> radius(filterAndnull);
 	vector<int> isGlass(filterAndnull);
-
-	int flagCount=0;
-	for (; index >= 0; index = hierarchy[index][0])
-	{
-		Scalar color(255);
-		int xx = contourArea(contours[index]);
-		if (xx>= the_num && xx<the_num*3)
-		{
-
-			approxPolyDP(Mat(contours[index]), contours_poly[Areacount], 3, true);//逼近曲线，应该要调整
-			minEnclosingCircle(contours_poly[Areacount], center[Areacount], radius[Areacount]);
-			if (xx / pedestalArea >= 1)
-				flagCount++;
-			if (comTemp > radius[Areacount])
-				comTemp = radius[Areacount];
-			//areaCount++;
-			if (contourArea(contours[index]) < the_num*1.2)
-				isGlass[Areacount] = 1;
-			else
-				isGlass[Areacount] = 0;
-			Areacount++;
-			if (Areacount == item_num)
-				break;
-		}
-
-	}
-	if (flagCount == filterAndnull)
+	if (filterAndnull == 0)
 	{
 		whetherNull = 1;
+		return isGlass;
 	}
 	else
 	{
 		whetherNull = 0;
 	}
-	myradius = comTemp;
-	mycenter = center;
+	int flagCount=0;
+	for (; index >= 0; index = hierarchy[index][0])
+	{
+		Scalar color(255);
+		int xx = contourArea(contours[index]);
+		bool flagFilter = xx<filterArea*1.05 && xx>filterArea*0.95;
+		if (flagFilter)
+		{
+			approxPolyDP(Mat(contours[index]), contours_poly[Areacount], 10, true);//逼近曲线，应该要调整
+			minEnclosingCircle(contours_poly[Areacount], center[Areacount], radius[Areacount]);
+			isGlass[Areacount] = 1;
+			flagCount++;
+			Areacount++;
+		}
+	}
+		mycenter = center;
 
-	return isGlass;
-}
+		return isGlass;
+	}
 
-int Get6th(vector<vector<Point>> contours,int& Filternum,int& lacks)//注意第二个参数不能乱取，一定要少于总轮廓的数量，>0
+
+int Get6th(vector<vector<Point>> contours, int& Filternum, int FilterArea)//注意第二个参数不能乱取，一定要少于总轮廓的数量，>0
 {
 	int length = contours.size(); vector<int> flag; int frontFlag = 1;
-	vector<int> idx; int FilterCount = 1; int count;
+	vector<int> idx; int FilterCount = 0; int count=0;
 	int front=1;
 	int next = 1;
 
@@ -401,66 +284,65 @@ int Get6th(vector<vector<Point>> contours,int& Filternum,int& lacks)//注意第二个
 	}
 	sort(idx.begin(), idx.end());
 
-	for (int j = length-1; j > 0; j--)
+	for (int index = 1; index <=length; index++)
 	{
-		int t;
-		if (idx.at(j - 1) == 0)
-			t = 1;
-		else
-			t = idx.at(j - 1);
-		flag.push_back(idx.at(j) / t);//标志
-	}
-	
-	
-	if (flag[0]>=3)//不足6块位置
-	{
-		count =1 ;
-		lacks = 1;
-		while (flag[count] == 1 || flag[count]==2)
+		bool flagFilter = idx.at(length - index)<FilterArea*1.05 && idx.at(length - index)>FilterArea*0.95;
+		if (flagFilter)
 		{
 			FilterCount++;
-			count++;
-			if (count == flag.size())
-				break;
 		}
-		Filternum = FilterCount+1;
-		return idx.at(length - FilterCount-1);
-	}
-	else if (flag[0] == 1)//6个位置有底座为空
-	{
-		count = 1;
-		FilterCount++;
-		while (flag[count] == 1 || flag[count] == 2)
+		if (idx.at(length - index) < FilterArea*0.8)
 		{
-			FilterCount++;
-			count++;
-			if (count == flag.size())
-				break;
+			break;
 		}
+		count++;
 	}
-	else//6个位置都有滤光片
-	{
-		FilterCount = 6;
-	}
-
 	Filternum = FilterCount;
+	if (FilterCount == 0)
+	{
+		return -1;
+	}
 	return idx.at(length - FilterCount);
-
-
-	
-
 }
 
-int getModeNumber(vector<int> ll) {
-	sort(ll.begin(), ll.end());
+int getAveragePix(Mat input, int ignore){
+	int w = input.cols;
+	int h = input.rows;
+	int sum = 0, cnt = 0;
+	for (size_t x = 0; x < w; x++){
+		for (size_t y = 0; y < h; y++){
+			int value = int(input.at<uchar>(y, x));
+			if (value != ignore){
+				sum += value;
+				cnt++;
+			}
+		}
+	}
+	int result = sum / cnt;
+	return result;
+}
+
+int getModePix(Mat input, int ignore){
+	int w = input.cols;
+	int h = input.rows;
+	vector<int> list;
+	int sum = 0, cnt = 0;
+	for (size_t x = 0; x < w; x++){
+		for (size_t y = 0; y < h; y++){
+			int value = int(input.at<uchar>(y, x));
+			if (value != ignore)
+				list.push_back(value);
+		}
+	}
+	sort(list.begin(), list.end());
 	int k = 0;
 	int MaxCount = 1;
 	int index = 0;
-	while (k <= ll.size() - 1) {
+	while (k <= list.size() - 1) {
 		int count = 1;
 		int j;
-		for (j = k; j < ll.size() - 1; j++) {
-			if (ll[j] == ll[j + 1])//存在连续两个数相等，则众数+1  
+		for (j = k; j < list.size() - 1; j++) {
+			if (list[j] == list[j + 1])//存在连续两个数相等，则众数+1  
 				count++;
 			else
 				break;
@@ -472,23 +354,5 @@ int getModeNumber(vector<int> ll) {
 		++j;
 		k = j;//位置后移到下一个未出现的数字  
 	}
-	return ll[index];
-}
-
-vector<string> split(const string &str, const string &pattern)
-{
-	//const char* convert to char*
-	char * strc = new char[strlen(str.c_str()) + 1];
-	strcpy(strc, str.c_str());
-	vector<string> resultVec;
-	char* tmpStr = strtok(strc, pattern.c_str());
-	while (tmpStr != NULL)
-	{
-		resultVec.push_back(string(tmpStr));
-		tmpStr = strtok(NULL, pattern.c_str());
-	}
-
-	delete[] strc;
-
-	return resultVec;
+	return list[index];
 }

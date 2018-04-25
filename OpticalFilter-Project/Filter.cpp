@@ -3,9 +3,9 @@
 
 Point tl, tr, bl, br;
 
-Filter::Filter(string filepath, string postFix, int num, int pedestalArea)
+Filter::Filter(string filepath, string postFix, int num, templateGet FilterParameter)
 {
-	Mat image1, image2, image3, image4; int length; double ratio = 1.2;
+	Mat image1, image2, image3, image4;
 	vector<string> tested_path;
 	tested_path = pathGet(filepath, postFix);
 	image1 = imread(tested_path[num * 3], 0);
@@ -16,15 +16,12 @@ Filter::Filter(string filepath, string postFix, int num, int pedestalArea)
 	srcImg1 = image1.clone();
 	srcImg2 = image2.clone();
 	srcImg3 = image3.clone();
-	vector<Point2f>mycenter; float myradius;
 
-	
-
+	vector<Point2f>mycenter;
 	vector<vector<Mat>> Six_area;
-	
 
+	vector<int> isGlass = GetArea(image3, 6, mycenter,whetherNull,FilterParameter.filterArea);
 
-	vector<int> isGlass = GetArea(image3, 6, mycenter, myradius,whetherNull,pedestalArea);
 	if (whetherNull == false){
 		int item_num = isGlass.size();
 		vector<int> outGlass(item_num);
@@ -36,13 +33,13 @@ Filter::Filter(string filepath, string postFix, int num, int pedestalArea)
 
 		for (int i = 0; i < item_num; i++)
 		{
-			length = myradius* ratio;
-			image1(Rect(newcenter.at(i).x - length, newcenter.at(i).y - length, length * 2, length * 2)).copyTo(Six_area1[i]);//第一张图ROI区域的输入
+			image1(Rect(newcenter.at(i).x - FilterParameter.firstWidth / 2, newcenter.at(i).y - FilterParameter.firstHeight / 2, FilterParameter.firstWidth, FilterParameter.firstHeight)).copyTo(Six_area1[i]);//第一张图ROI区域的输入
 			Area1.push_back(Six_area1[i]);
-			image2(Rect(newcenter.at(i).x - length, newcenter.at(i).y - length, length * 2, length * 2)).copyTo(Six_area2[i]);//第二张图ROI区域的输入
+			image2(Rect(newcenter.at(i).x - FilterParameter.firstWidth / 2, newcenter.at(i).y - FilterParameter.firstHeight / 2, FilterParameter.firstWidth, FilterParameter.firstHeight)).copyTo(Six_area2[i]);//第二张图ROI区域的输入
 			Area2.push_back(Six_area2[i]);
-			image4(Rect(newcenter.at(i).x - length, newcenter.at(i).y - length, length * 2, length * 2)).copyTo(Six_area3[i]);//第三张图ROI区域的输入
+			image4(Rect(newcenter.at(i).x - FilterParameter.firstWidth / 2, newcenter.at(i).y - FilterParameter.firstHeight / 2, FilterParameter.firstWidth, FilterParameter.firstHeight)).copyTo(Six_area3[i]);//第三张图ROI区域的输入
 			Area3.push_back(Six_area3[i]);
+
 			putText(image3, to_string(i + 1), newcenter.at(i), FONT_HERSHEY_PLAIN, 5, Scalar(100), 5, 8);
 		
 			whetherGlassed.push_back(outGlass[i]);
@@ -51,11 +48,9 @@ Filter::Filter(string filepath, string postFix, int num, int pedestalArea)
 	}
 }
 
-void Filter::imageMatting(vector<Mat> &silkPrint_show_list, vector<double> image_size) 
-{
+void Filter::imageMatting(vector<Mat> &silkPrint_show_list, templateGet FilterParameter) {
 	Mat roi1, roi2, roi3;
 	for (int i = 0; i < Area1.size(); i++){
-		//putText(src1, to_string(i), mycenter[i], FONT_HERSHEY_PLAIN, 5, Scalar(100), 5, 8);
 		if (whetherGlassed[i] == 1) {
 			roi1 = Area1[i].clone();
 			roi2 = Area2[i].clone();
@@ -73,18 +68,16 @@ void Filter::imageMatting(vector<Mat> &silkPrint_show_list, vector<double> image
 			vector<Vec4i> hierarchy;
 			findContours(thresroi3, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
 
-			//过滤掉小轮廓，取得中间最大的滤光片轮廓
+			//过滤掉小轮廓，取得中间透光区的轮廓
 			vector<vector<Point>>::iterator it_contour = contours.begin();
-			while (it_contour != contours.end())
-			{
-				//                cout << contourArea(*it_contour) << endl;
-				if (contourArea(*it_contour) < 100000 || contourArea(*it_contour) > 500000)//删去面积小于100000的轮廓
+			while (it_contour != contours.end()){
+				if (contourArea(*it_contour) < 100000 || contourArea(*it_contour) > FilterParameter.filterArea * 1.2)//删去面积过小和过大的轮廓
 					it_contour = contours.erase(it_contour);
 				else
 					++it_contour;
 			}
 
-			//记录滤光片轮廓左上和右下点的坐标，用于精确定位整块滤光片
+			//记录滤光片轮廓左上和右下点的坐标
 			tl = Point(99999, 99999), tr = Point(-1, 99999), bl = Point(99999, -1), br = Point(-1, -1);
 			for (int pp = 0; pp < contours[0].size(); pp++) {
 				if (contours[0][pp].x < roi3.cols / 3 && contours[0][pp].y < roi3.rows / 3) {
@@ -115,16 +108,21 @@ void Filter::imageMatting(vector<Mat> &silkPrint_show_list, vector<double> image
 			Mat glass_mask(roi3.rows, roi3.cols, CV_8UC1, Scalar(0));   //滤光片mask
 			drawContours(glass_mask, contours, -1, Scalar(255), CV_FILLED, 8);
 
-			//精确定位整块滤光片
-			Mat temp = roi2.clone();
+			//根据滤光片长宽比判断是否为该类滤光片
 			int width = tr.x - tl.x;	//图上内部小矩形的宽度
 			int height = bl.y - tl.y;	//图上内部小矩形的高度
-			double width_ratio = image_size[0] / image_size[2];		//大小矩形的宽度比
-			double height_ratio = image_size[1] / image_size[3];	//大小矩形的高度比
-			int newwidth = width * width_ratio;		//计算出图上外部大矩形的宽度，即可提取出完整滤光片
-			int newheight = height * height_ratio;	//计算出图上外部大矩形的高度，即可提取出完整滤光片
-			silkPrint_show_list.push_back(temp(Rect(temp.cols / 2 - newwidth / 2, temp.rows / 2 - newheight / 2, newwidth, newheight)).clone());
+			double thisRatio = (double)height / (double)width;
+			bool typeFlag1 = thisRatio < FilterParameter.ratio*1.05 && thisRatio >FilterParameter.ratio*0.95;
+			bool typeFlag2 = (double)1 / thisRatio < FilterParameter.ratio*1.05 && (double)1 / thisRatio >FilterParameter.ratio*0.95;
+			if (typeFlag1 || typeFlag2)
+				whetherGlassed[i] = 1;
+			else
+				whetherGlassed[i] = -1;
 
+			//精确定位整块滤光片
+			Mat temp = roi2.clone();
+			silkPrint_show_list.push_back(temp(Rect(temp.cols / 2 - FilterParameter.filterWidth / 2, temp.rows / 2 - FilterParameter.filterHeight / 2, FilterParameter.filterWidth, FilterParameter.filterHeight)).clone());
+			Mat whole_temp = temp(Rect(temp.cols / 2 - FilterParameter.filterWidth / 2, temp.rows / 2 - FilterParameter.filterHeight / 2, FilterParameter.filterWidth, FilterParameter.filterHeight)).clone();	//提取出整块滤光片
 			//在镜面四个角上画黑色矩形，避免因打光不足而导致误判（如扁平丝印4 5 6.bmp）
 			int w = 60, scale = 15;
 			rectangle(temp, Rect(Point(tl.x - scale, tl.y - scale), Point(tl.x + w, tl.y + w)), Scalar(0), CV_FILLED, 8);
@@ -132,33 +130,51 @@ void Filter::imageMatting(vector<Mat> &silkPrint_show_list, vector<double> image
 			rectangle(temp, Rect(Point(tr.x - w, tr.y - scale), Point(tr.x + scale, tr.y + w)), Scalar(0), CV_FILLED, 8);
 			rectangle(temp, Rect(Point(br.x - w, br.y - w), Point(br.x + scale, br.y + scale)), Scalar(0), CV_FILLED, 8);
 
-			Mat whole = temp(Rect(temp.cols / 2 - newwidth / 2, temp.rows / 2 - newheight / 2, newwidth, newheight));	//提取出整块滤光片
-			glass_mask = glass_mask(Rect(temp.cols / 2 - newwidth / 2, temp.rows / 2 - newheight / 2, newwidth, newheight));	//调整glass_mask尺寸
+			Mat whole = temp(Rect(temp.cols / 2 - FilterParameter.filterWidth / 2, temp.rows / 2 - FilterParameter.filterHeight / 2, FilterParameter.filterWidth, FilterParameter.filterHeight));	//提取出整块滤光片
+			Area1[i] = Area1[i](Rect(temp.cols / 2 - FilterParameter.filterWidth / 2, temp.rows / 2 - FilterParameter.filterHeight / 2, FilterParameter.filterWidth, FilterParameter.filterHeight));	//调整尺寸
+			Area2[i] = Area2[i](Rect(temp.cols / 2 - FilterParameter.filterWidth / 2, temp.rows / 2 - FilterParameter.filterHeight / 2, FilterParameter.filterWidth, FilterParameter.filterHeight));	//调整尺寸
+			Area3[i] = Area3[i](Rect(temp.cols / 2 - FilterParameter.filterWidth / 2, temp.rows / 2 - FilterParameter.filterHeight / 2, FilterParameter.filterWidth, FilterParameter.filterHeight));	//调整尺寸
+			glass_mask = glass_mask(Rect(temp.cols / 2 - FilterParameter.filterWidth / 2, temp.rows / 2 - FilterParameter.filterHeight / 2, FilterParameter.filterWidth, FilterParameter.filterHeight));	//调整glass_mask尺寸
 
 			/*----------------------------------------------------------------*/
 			/*--------------------------滤光片提取模块-------------------------*/
 			/*----------------------------------------------------------------*/
+			Mat tt;
+			threshold(whole_temp, tt, 250, 255, CV_THRESH_BINARY);
+			Mat element = getStructuringElement(MORPH_RECT, Size(FilterParameter.elementSize, FilterParameter.elementSize));
+			Mat forGlassContour;
+			erode(tt, forGlassContour, element, Point(-1, -1), 1);
+			findContours(forGlassContour, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
+			it_contour = contours.begin();
+			while (it_contour != contours.end()){
+				if (contourArea(*it_contour) < 100000 || contourArea(*it_contour) > FilterParameter.filterArea * 2)//删去面积过小和过大的轮廓
+					it_contour = contours.erase(it_contour);
+				else
+					++it_contour;
+			}
 			Mat glass;  //用于存储提取出的滤光片镜面部分
-			roi3(Rect(temp.cols / 2 - newwidth / 2, temp.rows / 2 - newheight / 2, newwidth, newheight)).copyTo(glass, glass_mask);  //提取出滤光片镜面
+			roi3(Rect(temp.cols / 2 - FilterParameter.filterWidth / 2, temp.rows / 2 - FilterParameter.filterHeight / 2, FilterParameter.filterWidth, FilterParameter.filterHeight)).copyTo(glass, glass_mask);  //提取出滤光片镜面
+			drawContours(glass, contours, -1, Scalar(getModePix(glass, 0)), 3);
 			glass_list.push_back(glass);
 
 			/*----------------------------------------------------------------*/
 			/*---------------------------丝印提取模块--------------------------*/
 			/*----------------------------------------------------------------*/
-			findContours(glass_mask, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
-			Mat glass_thres;
-			threshold(glass, glass_thres, 0, 255.0, CV_THRESH_BINARY);
-			IplImage ipl = (IplImage)whole;
-			int th = Otsu(&ipl);
-			//cout << th << endl;
-			drawContours(whole, contours, -1, Scalar(0), 15, 8);
-			threshold(whole, whole, th * 11 / 29, 255, CV_THRESH_BINARY);	//二值化，阈值的百分比需要调整
+			Mat forSilkContour;
+			dilate(tt, forSilkContour, element, Point(-1, -1), 1);
+			findContours(forSilkContour, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
+			it_contour = contours.begin();
+			while (it_contour != contours.end()){
+				if (contourArea(*it_contour) < 100000 || contourArea(*it_contour) > FilterParameter.filterArea * 2)//删去面积过小和过大的轮廓
+					it_contour = contours.erase(it_contour);
+				else
+					++it_contour;
+			}
+			drawContours(glass_mask, contours, -1, Scalar(255), CV_FILLED);
+			Mat silkprint_mask;
+			bitwise_not(glass_mask, silkprint_mask);
 			Mat silkprint; //用于存储提取出的丝印部分
-			silkprint = whole + glass_thres;//通过与二值化的镜面部分相加，来提取出丝印部分
-			//imshow("silkprint", silkprint);
-			Mat element = getStructuringElement(MORPH_RECT, Size(5, 5));
-			morphologyEx(silkprint, silkprint, MORPH_CLOSE, element);
-			dilate(silkprint, silkprint, element, Point(-1, -1), 1);
+			whole_temp.copyTo(silkprint, silkprint_mask);
 			silkprint_list.push_back(silkprint);
 		}
 		else
@@ -171,11 +187,9 @@ void Filter::imageMatting(vector<Mat> &silkPrint_show_list, vector<double> image
 	}
 }
 
-void Filter::imageMatting2(vector<Mat> &silkPrint_show_list, vector<double> image_size)
-{
+void Filter::imageMatting2(vector<Mat> &silkPrint_show_list, templateGet FilterParameter){
 	Mat roi1, roi2, roi3;
 	for (int i = 0; i < Area1.size(); i++) {
-		//putText(src1, to_string(i), mycenter[i], FONT_HERSHEY_PLAIN, 5, Scalar(100), 5, 8);
 		if (whetherGlassed[i] == 1) {
 			roi1 = Area1[i].clone();
 			roi2 = Area2[i].clone();
@@ -194,18 +208,15 @@ void Filter::imageMatting2(vector<Mat> &silkPrint_show_list, vector<double> imag
 			vector<Vec4i> hierarchy;
 			findContours(thresroi3, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
 
-			//过滤掉小轮廓，取得中间最大的滤光片轮廓
+			//过滤掉小轮廓，取得中间透光区的轮廓
 			vector<vector<Point>>::iterator it_contour = contours.begin();
-			while (it_contour != contours.end())
-			{
-				//                cout << contourArea(*it_contour) << endl;
-				if (contourArea(*it_contour) < 100000 || contourArea(*it_contour) > 500000)//删去面积小于100000的轮廓
+			while (it_contour != contours.end()){
+				if (contourArea(*it_contour) < 100000 || contourArea(*it_contour) > FilterParameter.filterArea * 1.2)//删去面积过小和过大的轮廓
 					it_contour = contours.erase(it_contour);
 				else
 					++it_contour;
 			}
-
-			//记录滤光片轮廓左上和右下点的坐标，用于精确定位整块滤光片
+			//记录滤光片轮廓左上和右下点的坐标
 			tl = Point(99999, 99999), tr = Point(-1, 99999), bl = Point(99999, -1), br = Point(-1, -1);
 			for (int pp = 0; pp < contours[0].size(); pp++) {
 				if (contours[0][pp].x < roi3.cols / 3 && contours[0][pp].y < roi3.rows / 3) {
@@ -236,83 +247,85 @@ void Filter::imageMatting2(vector<Mat> &silkPrint_show_list, vector<double> imag
 			Mat inner_glass_mask(roi3.rows, roi3.cols, CV_8UC1, Scalar(0));   //滤光片mask
 			drawContours(inner_glass_mask, contours, -1, Scalar(255), CV_FILLED, 8);
 
-			//精确定位整块滤光片
-			Mat temp = roi1.clone();
+			//根据滤光片长宽比判断是否为该类滤光片
 			int width = tr.x - tl.x;	//图上内部小矩形的宽度
 			int height = bl.y - tl.y;	//图上内部小矩形的高度
-			double width_ratio = image_size[0] / image_size[2];		//大小矩形的宽度比
-			double height_ratio = image_size[1] / image_size[3];	//大小矩形的高度比
-			int newwidth = width * width_ratio;		//计算出图上外部大矩形的宽度，即可提取出完整滤光片
-			int newheight = height * height_ratio;	//计算出图上外部大矩形的高度，即可提取出完整滤光片
-			Mat whole = temp(Rect(temp.cols / 2 - newwidth / 2, temp.rows / 2 - newheight / 2, newwidth, newheight));	//提取出整块滤光片
+			double thisRatio = (double)height / (double)width;
+			bool typeFlag1 = thisRatio < FilterParameter.ratio*1.05 && thisRatio >FilterParameter.ratio*0.95;
+			bool typeFlag2 = (double)1 / thisRatio < FilterParameter.ratio*1.05 && (double)1 / thisRatio >FilterParameter.ratio*0.95;
+			if (typeFlag1 || typeFlag2)
+				whetherGlassed[i] = 1;
+			else
+				whetherGlassed[i] = -1;
+
+			//精确定位整块滤光片
+			Mat temp = roi1.clone();
+			Mat whole = temp(Rect(temp.cols / 2 - FilterParameter.filterWidth / 2, temp.rows / 2 - FilterParameter.filterHeight / 2, FilterParameter.filterWidth, FilterParameter.filterHeight));	//提取出整块滤光片
+			Area1[i] = Area1[i](Rect(temp.cols / 2 - FilterParameter.filterWidth / 2, temp.rows / 2 - FilterParameter.filterHeight / 2, FilterParameter.filterWidth, FilterParameter.filterHeight));	//调整尺寸
+			Area2[i] = Area2[i](Rect(temp.cols / 2 - FilterParameter.filterWidth / 2, temp.rows / 2 - FilterParameter.filterHeight / 2, FilterParameter.filterWidth, FilterParameter.filterHeight));	//调整尺寸
+			Area3[i] = Area3[i](Rect(temp.cols / 2 - FilterParameter.filterWidth / 2, temp.rows / 2 - FilterParameter.filterHeight / 2, FilterParameter.filterWidth, FilterParameter.filterHeight));	//调整尺寸
+			inner_glass_mask = inner_glass_mask(Rect(temp.cols / 2 - FilterParameter.filterWidth / 2, temp.rows / 2 - FilterParameter.filterHeight / 2, FilterParameter.filterWidth, FilterParameter.filterHeight));	//调整尺寸
 			silkPrint_show_list.push_back(whole.clone());
 
-			Mat new_glass_outer = inner_glass_mask(Rect(temp.cols / 2 - newwidth / 2, temp.rows / 2 - newheight / 2, newwidth, newheight));
-			findContours(new_glass_outer.clone(), contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
-			vector<Point> silkprint_inner_contour = contours[0];	//记录内部镜面轮廓（即丝印内部轮廓）
-
-			Mat element = getStructuringElement(MORPH_RECT, Size(10, 10));
-			dilate(new_glass_outer, new_glass_outer, element, Point(-1, -1), 1);
-			Mat thres;
-			IplImage ipl = (IplImage)whole;
-			int th = Otsu(&ipl);
-			threshold(whole, thres, th * 17 / 19, 255.0, CV_THRESH_BINARY);    //二值化，阈值的百分比需要调整
-			thres = thres - new_glass_outer;
-			element = getStructuringElement(MORPH_RECT, Size(9, 9));
-			morphologyEx(thres, thres, MORPH_OPEN, element);	//开操作消除较小明亮区域
-			element = getStructuringElement(MORPH_RECT, Size(25, 25));
-			morphologyEx(thres, thres, MORPH_CLOSE, element);	//闭操作消除低亮度的孤立点
-			//imshow("thres", thres);
-			findContours(thres, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
-			vector<Point> silkprint_outer_contour = contours[1];	//记录丝印外部轮廓
-
-			vector<vector<Point>> sk_contours;	//记录丝印内外轮廓
-			sk_contours.push_back(silkprint_inner_contour);
-			sk_contours.push_back(silkprint_outer_contour);
-			Mat silkprint_mask(thres.rows, thres.cols, CV_8UC1, Scalar(0));   //滤光片mask
-			drawContours(silkprint_mask, sk_contours, 1, Scalar(255), CV_FILLED, 8);
-			drawContours(silkprint_mask, sk_contours, 0, Scalar(0), CV_FILLED, 8);
-			drawContours(silkprint_mask, sk_contours, 1, Scalar(255), 2, 8);
-			drawContours(silkprint_mask, sk_contours, 0, Scalar(0), 2, 8);
-			Mat glass_mask;
-			bitwise_not(silkprint_mask, glass_mask);
-
-			/*----------------------------------------------------------------*/
-			/*---------------------------丝印提取模块--------------------------*/
-			/*----------------------------------------------------------------*/
-			Mat kernel = (Mat_<float>(3, 3) << 0, -1, 0, 0, 3.3, 0, 0, -1, 0);
-			filter2D(whole, whole, CV_8UC1, kernel);
-			Mat silkprint = whole + glass_mask;
-			ipl = (IplImage)silkprint;
-			th = Otsu(&ipl);
-			threshold(silkprint, silkprint, th * 102 / 107, 255.0, CV_THRESH_BINARY);    //二值化，阈值的百分比需要调整
-			drawContours(silkprint, sk_contours, 1, Scalar(0), 3, 8);
-			element = getStructuringElement(MORPH_RECT, Size(3, 3));
-			morphologyEx(silkprint, silkprint, MORPH_OPEN, element);	//开操作去除较小的明亮区域
-			//imshow("silkprint", silkprint);
-			silkprint_list.push_back(silkprint);
 
 			/*----------------------------------------------------------------*/
 			/*--------------------------滤光片提取模块-------------------------*/
 			/*----------------------------------------------------------------*/
-			Mat inner_glass = roi3(Rect(temp.cols / 2 - newwidth / 2, temp.rows / 2 - newheight / 2, newwidth, newheight));
-			//通过众数取得内部镜面的整体颜色
-			vector<int> ll;
-			for (int x = inner_glass.cols / 4; x < inner_glass.cols / 4 * 3; x++) {
-				int value = inner_glass.at<uchar>(inner_glass.rows / 2, x);
-				ll.push_back(value);
-			}
-			int modeNumber = getModeNumber(ll);	//该数值即为内部镜面单通道颜色数值
-			Mat gray(thres.rows, thres.cols, CV_8UC1, Scalar(255 - modeNumber));	//设置外部镜面的颜色gray，使得原来的白色与gray相减后与内部镜面颜色相当
-			drawContours(gray, sk_contours, 1, Scalar(0), CV_FILLED, 8);
-			drawContours(silkprint_mask, sk_contours, 1, Scalar(255), CV_FILLED, 8);
+			Mat element = getStructuringElement(MORPH_RECT, Size(FilterParameter.elementSize, FilterParameter.elementSize));
+			dilate(inner_glass_mask, inner_glass_mask, element, Point(-1, -1), 1);
 			Mat outer_glass_mask;
-			bitwise_not(silkprint_mask, outer_glass_mask);
-			Mat glass;
-			whole.copyTo(glass, outer_glass_mask);
-			glass = glass + inner_glass - gray;	//将内部镜面与外部镜面相加，并减去gray，使得外部镜面与内部镜面颜色相当
-			//imshow("show1_" + to_string(i + 1), glass);
+			IplImage ipl = (IplImage)whole;
+			int th = Otsu(&ipl);
+			threshold(whole, outer_glass_mask, th * 17 / 19, 255.0, CV_THRESH_BINARY);    //二值化，阈值的百分比需要调整
+			outer_glass_mask = outer_glass_mask - inner_glass_mask;
+			element = getStructuringElement(MORPH_RECT, Size(9, 9));
+			morphologyEx(outer_glass_mask, outer_glass_mask, MORPH_OPEN, element);	//开操作消除较小明亮区域
+			element = getStructuringElement(MORPH_RECT, Size(25, 25));
+			morphologyEx(outer_glass_mask, outer_glass_mask, MORPH_CLOSE, element);	//闭操作消除低亮度的孤立点
+			element = getStructuringElement(MORPH_RECT, Size(FilterParameter.elementSize, FilterParameter.elementSize));
+			erode(inner_glass_mask, inner_glass_mask, element, Point(-1, -1), 1);
+			erode(inner_glass_mask, inner_glass_mask, element, Point(-1, -1), 1);
+			erode(outer_glass_mask, outer_glass_mask, element, Point(-1, -1), 1);
+			Mat glass_mask = inner_glass_mask + outer_glass_mask;
+			findContours(glass_mask, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
+			it_contour = contours.begin();
+			while (it_contour != contours.end()){
+				if (contourArea(*it_contour) < 100000 || contourArea(*it_contour) > FilterParameter.filterArea * 2)//删去面积过小和过大的轮廓
+					it_contour = contours.erase(it_contour);
+				else
+					++it_contour;
+			}
+			Mat inner_glass, outer_glass;
+			Area3[i].copyTo(inner_glass, inner_glass_mask);
+			Mat gray(inner_glass.rows, inner_glass.cols, CV_8UC1, Scalar(255 - getAveragePix(inner_glass, 0)));	//设置外部镜面的颜色差值gray，使得原来的白色与gray相减后与内部镜面颜色相当
+			Area1[i].copyTo(outer_glass, outer_glass_mask);
+			outer_glass = outer_glass - gray;
+			Mat glass = inner_glass + outer_glass;
+			drawContours(glass, contours, -1, Scalar(getAveragePix(glass, 0), 5));
+			imwrite("glass.jpg", glass);
 			glass_list.push_back(glass);
+
+			/*----------------------------------------------------------------*/
+			/*---------------------------丝印提取模块--------------------------*/
+			/*----------------------------------------------------------------*/
+			Mat silkprint_mask;
+			bitwise_not(inner_glass_mask + outer_glass_mask, silkprint_mask);
+			element = getStructuringElement(MORPH_RECT, Size(FilterParameter.elementSize, FilterParameter.elementSize));
+			erode(silkprint_mask, silkprint_mask, element, Point(-1, -1), 1);
+			erode(silkprint_mask, silkprint_mask, element, Point(-1, -1), 1);
+			findContours(silkprint_mask, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
+			it_contour = contours.begin();
+			while (it_contour != contours.end()){
+				if (contourArea(*it_contour) < 100000 || contourArea(*it_contour) > FilterParameter.filterArea * 2)//删去面积过小和过大的轮廓
+					it_contour = contours.erase(it_contour);
+				else
+					++it_contour;
+			}
+			Mat silkprint;
+			Area2[i].copyTo(silkprint, silkprint_mask);
+			drawContours(silkprint, contours, -1, Scalar(getAveragePix(silkprint, 0), 5));
+			imwrite("silkprint.jpg", silkprint);
+			silkprint_list.push_back(silkprint);
 		}
 		else
 		{

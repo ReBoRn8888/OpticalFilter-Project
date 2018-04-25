@@ -3,41 +3,55 @@ using namespace std;
 using namespace cv;
 
 //镜面检测部分
-int glassDetect(Mat& glass, int radiusThres, int contourAreaThres)
+int glassDetect(Mat& glass, int radiusThres, int contourAreaThres, templateGet FilterParameter)
 {
-	//通过形态学闭操作提取镜面边缘，二值化后取反，与原图相加，使与边缘相连的缺陷独立出来
+	int defect_flag = 0;	//缺陷标志位，0--无缺陷，1--有缺陷
+	//提取出镜面轮廓，通过面积和周长判断缺陷情况
+	Mat tt;
+	threshold(glass, tt, 0, 255, CV_THRESH_BINARY);
 	vector<vector<Point>> contours;
 	vector<Vec4i> hierarchy;
-	Mat tt = glass.clone();	//预处理
-	Mat element = getStructuringElement(MORPH_RECT, Size(15, 15));
-	morphologyEx(tt, tt, MORPH_CLOSE, element);
-	threshold(tt, tt, 0, 255, CV_THRESH_BINARY | CV_THRESH_OTSU);
-	bitwise_not(tt, tt);
-	element = getStructuringElement(MORPH_RECT, Size(9, 9));
-	dilate(tt, tt, element);
-	Mat addResult = tt + glass;
-	//二值化后进行边缘检测并提取轮廓，通过轮廓的属性（最小外接圆的半径、轮廓面积）来判断缺陷
-	GaussianBlur(addResult, addResult, Size(5, 5), 1);   //高斯滤波
-	element = getStructuringElement(MORPH_RECT, Size(3, 3));
-	erode(addResult, addResult, element);
-	IplImage ipl = (IplImage)addResult;
-	int th = Otsu(&ipl);
-	threshold(addResult, addResult, th * 33 / 43, 255, CV_THRESH_BINARY);
-	rectangle(addResult, Rect(Point(0, 0), Point(addResult.cols - 1, addResult.rows - 1)), Scalar(255), 3);
-	element = getStructuringElement(MORPH_RECT, Size(3, 3));
-	morphologyEx(addResult, addResult, MORPH_CLOSE, element);
-	findContours(addResult, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
+	findContours(tt, contours, hierarchy, RETR_TREE, CHAIN_APPROX_NONE);
+	//删去小轮廓，只留下最大的轮廓
+	vector<vector<Point>>::iterator it_contour = contours.begin();
+	while (it_contour != contours.end()){
+		if (contourArea(*it_contour) < FilterParameter.filterArea * 0.8)
+			it_contour = contours.erase(it_contour);
+		else
+			++it_contour;
+	}
+	int a = contourArea(contours[0]);
+	int l = contours[0].size();
+	if (a < FilterParameter.filterArea - FilterParameter.areaDownoffset || a > FilterParameter.filterArea - FilterParameter.areaUpoffset || 
+		l < FilterParameter.filterLength - FilterParameter.lengthDownoffset || l > FilterParameter.filterLength - FilterParameter.lengthUpoffset)
+		defect_flag = 1;
+	//按照像素均值+offset以上 和 像素均值-offset以下，将图像进行二值化
+	Mat thresDown, thresUp, thres;
+	threshold(glass, thresDown, getAveragePix(glass, 0) - FilterParameter.glassThresDownoffset, 255, CV_THRESH_BINARY_INV);
+	threshold(glass, thresUp, getAveragePix(glass, 0) + FilterParameter.glassThresUpoffset, 255, CV_THRESH_BINARY);
+	thres = thresDown + thresUp;
+	imwrite("test2.jpg", thres);
+	findContours(thres, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
+	//删去过大的丝印的轮廓
+	it_contour = contours.begin();
+	while (it_contour != contours.end()){
+		if (contourArea(*it_contour) > FilterParameter.filterArea * 0.8)
+			it_contour = contours.erase(it_contour);
+		else
+			++it_contour;
+	}
 	//遍历轮廓，判断缺陷
-	int defect_flag = 0;	//缺陷标志位，0--无缺陷，1--有缺陷
 	for (int index = 0; index < contours.size(); index++) {
 		Point2f center;
 		float radius;
 		minEnclosingCircle(contours[index], center, radius);	//计算轮廓的最小外接圆
 		int area = contourArea(contours[index]);	//计算轮廓面积
 		int scale = 3;
-		if (center.x > scale && center.x < glass.cols - scale && center.y > scale && center.y < glass.rows - scale && area < (glass.cols * glass.rows / 2) && radius < glass.cols * 2 / 5) {	//过滤掉太边缘的轮廓以及太大的轮廓
+		int todo_flag = 0;
+		if (center.x > scale && center.x < glass.cols - scale && center.y > scale && center.y < glass.rows - scale && area < (glass.cols * glass.rows / 2) && radius < glass.cols * 2 / 5)
+			todo_flag = 1;	//过滤掉太边缘的轮廓以及太大的轮廓
+		if (todo_flag) {
 			if (radius >= radiusThres || area >= contourAreaThres) {	//若最小外接圆的半径大于"radiusThres",或轮廓面积大于"contourAreaThres"，则判断为缺陷
-				//circle(glass, center, radius, Scalar(255), 2, 8);
 				drawContours(glass, contours, index, Scalar(255), 2, 8);
 				defect_flag = 1;
 			}
@@ -48,16 +62,39 @@ int glassDetect(Mat& glass, int radiusThres, int contourAreaThres)
 }
 
 //检测丝印的部分
-int silkprintDetect(Mat silkprint, int radiusThres, int contourAreaThres, Mat &show_list)
+int silkprintDetect(Mat silkprint, int radiusThres, int contourAreaThres, Mat &show_list, templateGet FilterParameter)
 {
-	vector<int>areas; int area_temp;
+	int defect_flag = 0;	//缺陷标志位，0--无缺陷，1--有缺陷
+	//提取出丝印的内外轮廓
+	Mat tt;
+	threshold(silkprint, tt, 0, 255, CV_THRESH_BINARY);
 	vector<vector<Point>> contours;
 	vector<Vec4i> hierarchy;
-	Mat silkprint_temp = silkprint.clone();
-	rectangle(silkprint_temp, Rect(Point(0, 0), Point(silkprint_temp.cols, silkprint_temp.rows)), Scalar(0), 3);
-	Mat tt = Mat::zeros(silkprint_temp.rows, silkprint_temp.cols, silkprint_temp.type());
-	findContours(silkprint_temp, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
-	int defect_flag = 0;	//缺陷标志位，0--无缺陷，1--有缺陷
+	findContours(tt, contours, hierarchy, RETR_TREE, CHAIN_APPROX_NONE);
+	//删去小轮廓，只留下最大的轮廓
+	vector<vector<Point>>::iterator it_contour = contours.begin();
+	it_contour = contours.begin();
+	while (it_contour != contours.end()){
+		if (contourArea(*it_contour) < FilterParameter.filterArea * 0.8)
+			it_contour = contours.erase(it_contour);
+		else
+			++it_contour;
+	}
+	//按照像素均值+offset以上 和 像素均值-offset以下，将图像进行二值化
+	Mat thresDown, thresUp, thres;
+	threshold(silkprint, thresDown, getAveragePix(silkprint, 0) - FilterParameter.silkThresDownoffset, 255, CV_THRESH_BINARY_INV);
+	threshold(silkprint, thresUp, getAveragePix(silkprint, 0) + FilterParameter.silkThresUpoffset, 255, CV_THRESH_BINARY);
+	thres = thresDown + thresUp;
+	drawContours(thres, contours, -1, Scalar(0), 3);
+	findContours(thres, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
+	//删去过大的丝印的轮廓
+	it_contour = contours.begin();
+	while (it_contour != contours.end()){
+		if (contourArea(*it_contour) > FilterParameter.filterArea * 0.8)
+			it_contour = contours.erase(it_contour);
+		else
+			++it_contour;
+	}
 	for (int index = 0; index < contours.size(); index++)
 	{
 		Point2f center;
@@ -65,9 +102,11 @@ int silkprintDetect(Mat silkprint, int radiusThres, int contourAreaThres, Mat &s
 		minEnclosingCircle(contours[index], center, radius);	//计算轮廓的最小外接圆
 		int area = contourArea(contours[index]);	//计算轮廓面积
 		int scale = 5;
-		if (center.x > scale && center.x < show_list.cols - scale && center.y > scale && center.y < show_list.rows - scale && area < show_list.cols * show_list.rows / 2 && radius < show_list.cols * 2 / 5) {	//过滤掉太边缘的轮廓以及太大的轮廓
+		int todo_flag = 0;
+		if (center.x > scale && center.x < show_list.cols - scale && center.y > scale && center.y < show_list.rows - scale && area < show_list.cols * show_list.rows / 2 && radius < show_list.cols * 2 / 5)
+			todo_flag = 1;	//过滤掉太边缘的轮廓以及太大的轮廓
+		if (todo_flag) {
 			if (radius >= radiusThres || area >= contourAreaThres) {	//若最小外接圆的半径大于"radiusThres",或轮廓面积大于"contourAreaThres"，则判断为缺陷
-				//circle(show_list, center, radius, Scalar(255), 2, 8);
 				drawContours(show_list, contours, index, Scalar(255), 2, 8);
 				defect_flag = 1;
 			}

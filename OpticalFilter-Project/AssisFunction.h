@@ -9,6 +9,27 @@
 #include "opencv2/core/core.hpp"
 #include <ctime>
 
+struct templateGet
+{
+	double filterType;
+	double ratio;
+	int elementSize;
+	int firstHeight;
+	int firstWidth;
+	int filterHeight;
+	int filterWidth;
+	int filterArea;
+	int filterLength;
+	double silkThresUpoffset;
+	double silkThresDownoffset;
+	double glassThresUpoffset;
+	double glassThresDownoffset;
+	double areaUpoffset;
+	double areaDownoffset;
+	double lengthUpoffset;
+	double lengthDownoffset;
+};
+
 using namespace cv;
 using namespace std;
 
@@ -24,19 +45,14 @@ float RotatedDegree(Mat rotaImg);
 
 string Int_to_String(int n);
 
-int Get6th(vector<vector<Point>> contours, int& Filternum,int& lacks);//返回第六个数的大小，如果滤光片加底座的数量小于6，那么将最后的数量赋值给Fileternum
-vector<int> GetArea(Mat, int, vector<Point2f>&, float&, bool&, int);
+int Get6th(vector<vector<Point>> contours, int& Filternum,int);//返回第六个数的大小，如果滤光片加底座的数量小于6，那么将最后的数量赋值给Fileternum
+vector<int> GetArea(Mat, int, vector<Point2f>&, bool&, int);
 vector<Point2f>sortCenterpoint(vector<Point2f> centers, int middle, vector<int>isGlassed, vector<int>&OutGlassed);
 
-int glassDetect(Mat& glass, int radiusThres, int contourAreaThres);
-int silkprintDetect(Mat silkprint, int radiusThres, int contourAreaThres, Mat &show_list);
+int glassDetect(Mat&, int, int, templateGet);
+int silkprintDetect(Mat, int, int, Mat &, templateGet);
 
-int getModeNumber(vector<int>);
-
-vector<string> split(const string &, const string &);
-
-void getConfigInfo(vector<double>&, double&);
-
-
+int getAveragePix(Mat, int);
+int getModePix(Mat, int);
 
 #endif
