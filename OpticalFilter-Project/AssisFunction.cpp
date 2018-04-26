@@ -220,15 +220,10 @@ vector<int>GetArea(Mat img, int item_num, vector<Point2f>&mycenter,bool&whetherN
 	Mat drawing;
 	dstImg.copyTo(drawing);
 
-	for (int i = 0; i < contours.size(); i++)
-	{
+	for (int i = 0; i < contours.size(); i++){
 		Scalar color = Scalar(255, 255, 255);
 		if (contours[i].size()>200)
-		{
-			//cout << contourArea(contours[i]) << endl;
 			drawContours(drawing, contours, i, color, 2, 8, hierarchy, 0, Point());
-		}
-		//circle(drawing, center[i], (int)radius[i], color, 2, 8, 0);   //Íâ½ÓÔ²
 	}
 
 	int index = 0; int comTemp = 10000000000; int Areacount = 0; int filterAndnull = 0; 

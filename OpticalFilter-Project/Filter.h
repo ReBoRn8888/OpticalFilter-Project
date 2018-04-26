@@ -20,6 +20,7 @@ public:
 	Mat srcImg1, srcImg2, srcImg3;//three each group
 	//vector<string> SingleType;//For example:"Empty","Printing"&etc.
 	vector<int> whetherGlassed;//whether coverd glass
+	vector<int> glassLabel;
 	vector<Mat> Area1;
 	vector<Mat> Area2;
 	vector<Mat> Area3;//Six area each map

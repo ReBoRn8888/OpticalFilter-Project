@@ -19,7 +19,7 @@ outResults algorithmOutput;
 void detectThread(Filter thisFilter, int radiusThres_silkprint, int contourAreaThres_silkprint, int radiusThres_glass, int contourAreaThres_glass, vector<Mat> silkPrint_show_list, 
 				templateGet FilterParameter, int areaID, double xposParameter, double yposParameter){//滤光片检测线程
 	int flag = 1;
-	SingleResult[areaID].label = areaID;
+	SingleResult[areaID].label = thisFilter.glassLabel[areaID];
 	SingleResult[areaID].xpos = xposParameter;
 	SingleResult[areaID].ypos = yposParameter;
 
@@ -51,17 +51,17 @@ void detectThread(Filter thisFilter, int radiusThres_silkprint, int contourAreaT
 
 int main()
 {
-	int num = 6;		//当前第几组图片，编号从0开始
-	vector<int> filterArea = { 320000, 320000, 215000, 225000, 270000, 145000, 250000 };//预置的滤光片面积，之后手动输入参数
-	vector<int> filterHeight = { 0, 0, 0, 0, 0, 590, 719 };//预置的滤光片高度，之后手动输入参数
-	vector<int> filterWidth = { 0, 0, 0, 0, 0, 730, 645 };//预置的滤光片宽度，之后手动输入参数
+	int num = 4;		//当前第几组图片，编号从0开始
+	vector<int> filterArea = { 210000, 320000, 215000, 225000, 270000, 145000, 250000 };//预置的滤光片面积，之后手动输入参数
+	vector<int> filterHeight = { 0, 0, 0, 0, 590, 0, 719 };//预置的滤光片高度，之后手动输入参数
+	vector<int> filterWidth = { 0, 0, 0, 0, 730, 0, 645 };//预置的滤光片宽度，之后手动输入参数
 	vector<int> filterType = { 0, 0, 0, 1, 0, 0, 1 };//预置的滤光片类型，之后手动输入参数
 	int item_num = 6;	//一张图片中的滤光片数量
-	string filepath = "E:\\研究生\\Work\\滤光片缺陷检测\\图片\\扁平\\扁平丝印";	//输入图片的路径
+	string filepath = "D:\\Study\\Reborn\\Work\\滤光片缺陷检测\\Image\\Flat\\Sprinting";	//输入图片的路径
 	string postFix = "bmp";	//图片后缀名
 
-	double xposParameter=1.0;
-	double yposParameter=1.0;
+	double xposParameter = 1.0;
+	double yposParameter = 1.0;
 
 	//下面是模板获取的参数的初始化
 	FilterParameter.ratio = 0.75306;					//滤光片长宽比
@@ -77,7 +77,7 @@ int main()
 	FilterParameter.areaDownoffset = 700;				//面积差下限偏移量
 	FilterParameter.lengthUpoffset = 50;				//周长差上限偏移量
 	FilterParameter.lengthDownoffset = 50;				//周长差下限偏移量
-	FilterParameter.glassThresUpoffset = 10;				//检测时透光区二值化阈值的下限偏移量
+	FilterParameter.glassThresUpoffset = 10;			//检测时透光区二值化阈值的下限偏移量
 	FilterParameter.glassThresDownoffset = 10;			//检测时透光区二值化阈值的上限偏移量
 	FilterParameter.silkThresUpoffset = 10;				//检测时丝印二值化阈值的下限偏移量
 	FilterParameter.silkThresDownoffset = 10;			//检测时丝印二值化阈值的上限偏移量
@@ -111,7 +111,7 @@ int main()
 		//将检测结果整理到结构体
 		for (int i = 0; i < thisFilter.glass_list.size(); i++){
 			if (SingleResult[i].flag){
-				cout << "<" << SingleResult[i].label + 1 << ">号滤光片有缺陷" << endl;
+				cout << "<" << SingleResult[i].label << ">号滤光片有缺陷" << endl;
 				algorithmOutput.ngFileter.push_back(SingleResult[i]);
 			}
 			algorithmOutput.allFilter.push_back(SingleResult[i]);

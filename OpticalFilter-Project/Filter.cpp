@@ -20,9 +20,9 @@ Filter::Filter(string filepath, string postFix, int num, templateGet FilterParam
 	vector<Point2f>mycenter;
 	vector<vector<Mat>> Six_area;
 
-	vector<int> isGlass = GetArea(image3, 6, mycenter,whetherNull,FilterParameter.filterArea);
+	vector<int> isGlass = GetArea(image3, 6, mycenter, whetherNull, FilterParameter.filterArea);
 
-	if (whetherNull == false){
+	if (whetherNull == false) {
 		int item_num = isGlass.size();
 		vector<int> outGlass(item_num);
 		vector<Mat> Six_area1(item_num);
@@ -30,6 +30,8 @@ Filter::Filter(string filepath, string postFix, int num, templateGet FilterParam
 		vector<Mat> Six_area3(item_num);
 
 		vector<Point2f> newcenter = sortCenterpoint(mycenter, image1.rows / 2, isGlass, outGlass);
+
+
 
 		for (int i = 0; i < item_num; i++)
 		{
@@ -40,14 +42,31 @@ Filter::Filter(string filepath, string postFix, int num, templateGet FilterParam
 			image4(Rect(newcenter.at(i).x - FilterParameter.firstWidth / 2, newcenter.at(i).y - FilterParameter.firstHeight / 2, FilterParameter.firstWidth, FilterParameter.firstHeight)).copyTo(Six_area3[i]);//第三张图ROI区域的输入
 			Area3.push_back(Six_area3[i]);
 
-			putText(image3, to_string(i + 1), newcenter.at(i), FONT_HERSHEY_PLAIN, 5, Scalar(100), 5, 8);
-		
+			int A = srcImg1.cols / 3;
+			int B = srcImg1.rows / 2;
+			int localFlag = 10 * int(newcenter.at(i).x / A) + newcenter.at(i).y / B;
+			switch (localFlag)
+			{
+			case 0:
+				glassLabel.push_back(1); break;
+			case 1:
+				glassLabel.push_back(4); break;
+			case 10:
+				glassLabel.push_back(2); break;
+			case 11:
+				glassLabel.push_back(5); break;
+			case 20:
+				glassLabel.push_back(3); break;
+			case 21:
+				glassLabel.push_back(6); break;
+			};
+			putText(image3, to_string(glassLabel[i]), newcenter.at(i), FONT_HERSHEY_PLAIN, 5, Scalar(100), 5, 8);
+
 			whetherGlassed.push_back(outGlass[i]);
 		}
 		imwrite("label.jpg", image3);
 	}
 }
-
 void Filter::imageMatting(vector<Mat> &silkPrint_show_list, templateGet FilterParameter) {
 	Mat roi1, roi2, roi3;
 	for (int i = 0; i < Area1.size(); i++){
@@ -302,7 +321,6 @@ void Filter::imageMatting2(vector<Mat> &silkPrint_show_list, templateGet FilterP
 			outer_glass = outer_glass - gray;
 			Mat glass = inner_glass + outer_glass;
 			drawContours(glass, contours, -1, Scalar(getAveragePix(glass, 0), 5));
-			imwrite("glass.jpg", glass);
 			glass_list.push_back(glass);
 
 			/*----------------------------------------------------------------*/
@@ -324,7 +342,6 @@ void Filter::imageMatting2(vector<Mat> &silkPrint_show_list, templateGet FilterP
 			Mat silkprint;
 			Area2[i].copyTo(silkprint, silkprint_mask);
 			drawContours(silkprint, contours, -1, Scalar(getAveragePix(silkprint, 0), 5));
-			imwrite("silkprint.jpg", silkprint);
 			silkprint_list.push_back(silkprint);
 		}
 		else

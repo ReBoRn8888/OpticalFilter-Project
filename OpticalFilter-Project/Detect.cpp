@@ -30,7 +30,6 @@ int glassDetect(Mat& glass, int radiusThres, int contourAreaThres, templateGet F
 	threshold(glass, thresDown, getAveragePix(glass, 0) - FilterParameter.glassThresDownoffset, 255, CV_THRESH_BINARY_INV);
 	threshold(glass, thresUp, getAveragePix(glass, 0) + FilterParameter.glassThresUpoffset, 255, CV_THRESH_BINARY);
 	thres = thresDown + thresUp;
-	imwrite("test2.jpg", thres);
 	findContours(thres, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
 	//删去过大的丝印的轮廓
 	it_contour = contours.begin();
