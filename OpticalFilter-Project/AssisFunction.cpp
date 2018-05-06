@@ -88,8 +88,7 @@ vector<string> pathGet(string filepath, string postFix)
 	postFix = "\\*." + postFix;
 	strcpy_s(filename, filepath.c_str());
 	strcat_s(filename, postFix.c_str());
-	if ((lfDir = _findfirst(filename, &fileDir)) == -1l)
-		printf("No file is found\n");
+	if ((lfDir = _findfirst(filename, &fileDir)) == -1l);
 	else {
 		do {
 			char name[256];
@@ -205,7 +204,7 @@ vector<Point2f>sortCenterpoint(vector<Point2f> centers, int middle, vector<int>i
 	return new_center;
 }
 
-vector<int>GetArea(Mat img, int item_num, vector<Point2f>&mycenter,bool&whetherNull, int filterArea)
+vector<int>GetArea(Mat img, int item_num, vector<Point2f>&mycenter,bool&whetherNull, int filterArea,double ratio)
 {
 	Mat edge;
 	threshold(img, edge, 120, 255, 0);
@@ -226,14 +225,15 @@ vector<int>GetArea(Mat img, int item_num, vector<Point2f>&mycenter,bool&whetherN
 			drawContours(drawing, contours, i, color, 2, 8, hierarchy, 0, Point());
 	}
 
-	int index = 0; int comTemp = 10000000000; int Areacount = 0; int filterAndnull = 0; 
-	int the_num = Get6th(contours, filterAndnull, filterArea);//这个the_num 可以作为以后判断的标志位，如果没有滤光片返回-1，有则返回滤光片数量
+	int index = 0; int comTemp = 10000000000; int Areacount = 0;
+	int filterAndnull = Get6th(contours, filterArea, ratio);
 
 
 	vector <vector<Point>> contours_poly(filterAndnull);
 	vector<Point2f>  center(filterAndnull);
 	vector<float> radius(filterAndnull);
 	vector<int> isGlass(filterAndnull);
+	
 	if (filterAndnull == 0)
 	{
 		whetherNull = 1;
@@ -249,25 +249,27 @@ vector<int>GetArea(Mat img, int item_num, vector<Point2f>&mycenter,bool&whetherN
 		Scalar color(255);
 		int xx = contourArea(contours[index]);
 		bool flagFilter = xx<filterArea*1.05 && xx>filterArea*0.95;
+		Mat boundRect;
 		if (flagFilter)
 		{
-			approxPolyDP(Mat(contours[index]), contours_poly[Areacount], 10, true);//逼近曲线，应该要调整
+			approxPolyDP(Mat(contours[index]), contours_poly[Areacount], 5, true);//逼近曲线，应该要调整
 			minEnclosingCircle(contours_poly[Areacount], center[Areacount], radius[Areacount]);
 			isGlass[Areacount] = 1;
 			flagCount++;
 			Areacount++;
 		}
 	}
-		mycenter = center;
+	mycenter = center;
 
-		return isGlass;
-	}
+	return isGlass;
+}
 
 
-int Get6th(vector<vector<Point>> contours, int& Filternum, int FilterArea)//注意第二个参数不能乱取，一定要少于总轮廓的数量，>0
+int Get6th(vector<vector<Point>> contours, int FilterArea,double ratio)//注意第二个参数不能乱取，一定要少于总轮廓的数量，>0
 {
 	int length = contours.size(); vector<int> flag; int frontFlag = 1;
-	vector<int> idx; int FilterCount = 0; int count=0;
+	vector<int> idx; int FilterCount = 0;
+	Mat boundRect; //外界矩形，判断ratio
 	int front=1;
 	int next = 1;
 
@@ -277,27 +279,26 @@ int Get6th(vector<vector<Point>> contours, int& Filternum, int FilterArea)//注意
 		g_dConLength = contourArea(contours[i]);
 		idx.push_back(g_dConLength);
 	}
-	sort(idx.begin(), idx.end());
 
-	for (int index = 1; index <=length; index++)
+	for (int index = 0; index < length; index++)
 	{
-		bool flagFilter = idx.at(length - index)<FilterArea*1.05 && idx.at(length - index)>FilterArea*0.95;
-		if (flagFilter)
+		RotatedRect rect = minAreaRect(contours[index]);
+		double ratios1 = rect.size.height / rect.size.width;
+		double ratios2 = rect.size.width / rect.size.height;
+		bool ratio_flag1 = ratios1<ratio*1.05 && ratios1>ratio*0.95;
+		bool ratio_flag2 = ratios2<ratio*1.05 && ratios2>ratio*0.95;
+		bool ratio_flag = ratio_flag1 || ratio_flag2;
+		bool flagFilter = idx[index]<FilterArea*1.05 && idx[index]>FilterArea*0.95;
+		if (flagFilter && ratio_flag)
 		{
 			FilterCount++;
 		}
-		if (idx.at(length - index) < FilterArea*0.8)
-		{
-			break;
-		}
-		count++;
 	}
-	Filternum = FilterCount;
 	if (FilterCount == 0)
 	{
 		return -1;
 	}
-	return idx.at(length - FilterCount);
+	return FilterCount;
 }
 
 int getAveragePix(Mat input, int ignore){

@@ -6,8 +6,9 @@ Point tl, tr, bl, br;
 Filter::Filter(string filepath, string postFix, int num, templateGet FilterParameter)
 {
 	Mat image1, image2, image3, image4;
-	vector<string> tested_path;
 	tested_path = pathGet(filepath, postFix);
+	if (tested_path.size() == 0)
+		return;
 	image1 = imread(tested_path[num * 3], 0);
 	image2 = imread(tested_path[num * 3 + 1], 0);
 	image3 = imread(tested_path[num * 3 + 2], 0);
@@ -20,7 +21,7 @@ Filter::Filter(string filepath, string postFix, int num, templateGet FilterParam
 	vector<Point2f>mycenter;
 	vector<vector<Mat>> Six_area;
 
-	vector<int> isGlass = GetArea(image3, 6, mycenter, whetherNull, FilterParameter.filterArea);
+	vector<int> isGlass = GetArea(image3, 6, mycenter, whetherNull, FilterParameter.filterArea, FilterParameter.ratio);
 
 	if (whetherNull == false) {
 		int item_num = isGlass.size();
@@ -30,35 +31,47 @@ Filter::Filter(string filepath, string postFix, int num, templateGet FilterParam
 		vector<Mat> Six_area3(item_num);
 
 		vector<Point2f> newcenter = sortCenterpoint(mycenter, image1.rows / 2, isGlass, outGlass);
-
-
-
-		for (int i = 0; i < item_num; i++)
-		{
-			image1(Rect(newcenter.at(i).x - FilterParameter.firstWidth / 2, newcenter.at(i).y - FilterParameter.firstHeight / 2, FilterParameter.firstWidth, FilterParameter.firstHeight)).copyTo(Six_area1[i]);//第一张图ROI区域的输入
-			Area1.push_back(Six_area1[i]);
-			image2(Rect(newcenter.at(i).x - FilterParameter.firstWidth / 2, newcenter.at(i).y - FilterParameter.firstHeight / 2, FilterParameter.firstWidth, FilterParameter.firstHeight)).copyTo(Six_area2[i]);//第二张图ROI区域的输入
-			Area2.push_back(Six_area2[i]);
-			image4(Rect(newcenter.at(i).x - FilterParameter.firstWidth / 2, newcenter.at(i).y - FilterParameter.firstHeight / 2, FilterParameter.firstWidth, FilterParameter.firstHeight)).copyTo(Six_area3[i]);//第三张图ROI区域的输入
-			Area3.push_back(Six_area3[i]);
-
+		int X1, Y1, X2, Y2;
+		for (int i = 0; i < item_num; i++){
+			X1 = newcenter.at(i).x - FilterParameter.firstWidth / 2;
+			X2 = newcenter.at(i).x + FilterParameter.firstWidth / 2;
+			Y1 = newcenter.at(i).y - FilterParameter.firstHeight / 2;
+			Y2 = newcenter.at(i).y + FilterParameter.firstHeight / 2;
+			if (X1 >= 0 && X2 <= srcImg1.cols && Y1 >= 0 && Y2 <= srcImg1.rows)
+			{
+				image1(Rect(X1, Y1, FilterParameter.firstWidth, FilterParameter.firstHeight)).copyTo(Six_area1[i]);//第一张图ROI区域的输入
+				Area1.push_back(Six_area1[i]);
+				image2(Rect(X1, Y1, FilterParameter.firstWidth, FilterParameter.firstHeight)).copyTo(Six_area2[i]);//第二张图ROI区域的输入
+				Area2.push_back(Six_area2[i]);
+				image4(Rect(X1, Y1, FilterParameter.firstWidth, FilterParameter.firstHeight)).copyTo(Six_area3[i]);//第三张图ROI区域的输入
+				Area3.push_back(Six_area3[i]);
+			}
+			else
+			{
+				image1.copyTo(Six_area1[i]);//第一张图ROI区域的输入
+				Area1.push_back(Six_area1[i]);
+				image2.copyTo(Six_area2[i]);//第二张图ROI区域的输入
+				Area2.push_back(Six_area2[i]);
+				image4.copyTo(Six_area3[i]);//第三张图ROI区域的输入
+				Area3.push_back(Six_area3[i]);
+				outGlass[i] = 0;
+			}
 			int A = srcImg1.cols / 3;
 			int B = srcImg1.rows / 2;
 			int localFlag = 10 * int(newcenter.at(i).x / A) + newcenter.at(i).y / B;
-			switch (localFlag)
-			{
-			case 0:
-				glassLabel.push_back(1); break;
-			case 1:
-				glassLabel.push_back(4); break;
-			case 10:
-				glassLabel.push_back(2); break;
-			case 11:
-				glassLabel.push_back(5); break;
-			case 20:
-				glassLabel.push_back(3); break;
-			case 21:
-				glassLabel.push_back(6); break;
+			switch (localFlag){
+				case 0:
+					glassLabel.push_back(1); break;
+				case 1:
+					glassLabel.push_back(4); break;
+				case 10:
+					glassLabel.push_back(2); break;
+				case 11:
+					glassLabel.push_back(5); break;
+				case 20:
+					glassLabel.push_back(3); break;
+				case 21:
+					glassLabel.push_back(6); break;
 			};
 			putText(image3, to_string(glassLabel[i]), newcenter.at(i), FONT_HERSHEY_PLAIN, 5, Scalar(100), 5, 8);
 
@@ -67,6 +80,7 @@ Filter::Filter(string filepath, string postFix, int num, templateGet FilterParam
 		imwrite("label.jpg", image3);
 	}
 }
+
 void Filter::imageMatting(vector<Mat> &silkPrint_show_list, templateGet FilterParameter) {
 	Mat roi1, roi2, roi3;
 	for (int i = 0; i < Area1.size(); i++){
@@ -156,13 +170,14 @@ void Filter::imageMatting(vector<Mat> &silkPrint_show_list, templateGet FilterPa
 			glass_mask = glass_mask(Rect(temp.cols / 2 - FilterParameter.filterWidth / 2, temp.rows / 2 - FilterParameter.filterHeight / 2, FilterParameter.filterWidth, FilterParameter.filterHeight));	//调整glass_mask尺寸
 
 			/*----------------------------------------------------------------*/
-			/*--------------------------滤光片提取模块-------------------------*/
+			/*--------------------------透光区提取模块-------------------------*/
 			/*----------------------------------------------------------------*/
 			Mat tt;
 			threshold(whole_temp, tt, 250, 255, CV_THRESH_BINARY);
 			Mat element = getStructuringElement(MORPH_RECT, Size(FilterParameter.elementSize, FilterParameter.elementSize));
 			Mat forGlassContour;
 			erode(tt, forGlassContour, element, Point(-1, -1), 1);
+			//imwrite("cs.jpg", tt);
 			findContours(forGlassContour, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
 			it_contour = contours.begin();
 			while (it_contour != contours.end()){
@@ -288,7 +303,7 @@ void Filter::imageMatting2(vector<Mat> &silkPrint_show_list, templateGet FilterP
 
 
 			/*----------------------------------------------------------------*/
-			/*--------------------------滤光片提取模块-------------------------*/
+			/*--------------------------透光区提取模块-------------------------*/
 			/*----------------------------------------------------------------*/
 			Mat element = getStructuringElement(MORPH_RECT, Size(FilterParameter.elementSize, FilterParameter.elementSize));
 			dilate(inner_glass_mask, inner_glass_mask, element, Point(-1, -1), 1);
@@ -354,5 +369,53 @@ void Filter::imageMatting2(vector<Mat> &silkPrint_show_list, templateGet FilterP
 	}
 }
 
+void Filter::imageMatting3(vector<Mat> &silkPrint_show_list, templateGet FilterParameter) {
+	Mat roi1, roi2, roi3;
+	for (int i = 0; i < Area1.size(); i++) {
+		if (whetherGlassed[i] == 1) {
+			roi2 = Area2[i].clone();
+			roi3 = Area3[i].clone();
+
+			/*----------------------------------------------------------------*/
+			/*--------------------------透光区提取模块-------------------------*/
+			/*----------------------------------------------------------------*/
+			Mat forGlassContour;
+			threshold(roi2, forGlassContour, 250, 255, CV_THRESH_BINARY);
+			Mat element = getStructuringElement(MORPH_RECT, Size(FilterParameter.elementSize, FilterParameter.elementSize));
+			erode(forGlassContour, forGlassContour, element, Point(-1, -1), 1);
+			vector<vector<Point>> contours;
+			vector<Vec4i> hierarchy;
+			findContours(forGlassContour, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
+			vector<vector<Point>>::iterator it_contour = contours.begin();
+			while (it_contour != contours.end()){
+				if (contourArea(*it_contour) < 100000 || contourArea(*it_contour) > FilterParameter.filterArea * 2)//删去面积过小和过大的轮廓
+					it_contour = contours.erase(it_contour);
+				else
+					++it_contour;
+			}
+			Mat glass_mask(roi3.rows, roi3.cols, CV_8UC1, Scalar(0));   //滤光片mask
+			drawContours(glass_mask, contours, -1, Scalar(255), CV_FILLED, 8);
+
+			Mat glass;
+			roi3.copyTo(glass, glass_mask);
+			drawContours(glass, contours, -1, Scalar(getModePix(glass, 0)), 3);
+			glass_list.push_back(glass);
+
+			/*----------------------------------------------------------------*/
+			/*---------------------------丝印提取模块--------------------------*/
+			/*----------------------------------------------------------------*/
+			Mat dsc(roi3.rows, roi3.cols, CV_8UC1, Scalar(100));
+			silkprint_list.push_back(dsc);
+			silkPrint_show_list.push_back(dsc);
+		}
+		else
+		{
+			Mat dsc = Mat::zeros(1, 1, CV_16U);
+			silkprint_list.push_back(dsc);
+			glass_list.push_back(dsc);
+			silkPrint_show_list.push_back(dsc);
+		}
+	}
+}
 
 Filter::~Filter(){}

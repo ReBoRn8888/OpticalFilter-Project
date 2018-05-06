@@ -8,7 +8,9 @@ int glassDetect(Mat& glass, int radiusThres, int contourAreaThres, templateGet F
 	int defect_flag = 0;	//缺陷标志位，0--无缺陷，1--有缺陷
 	//提取出镜面轮廓，通过面积和周长判断缺陷情况
 	Mat tt;
-	threshold(glass, tt, 0, 255, CV_THRESH_BINARY);
+	//imwrite("test.jpg", glass);
+	threshold(glass, tt, 0, 255, CV_THRESH_BINARY | CV_THRESH_OTSU);
+	//imwrite("test2.jpg", tt);
 	vector<vector<Point>> contours;
 	vector<Vec4i> hierarchy;
 	findContours(tt, contours, hierarchy, RETR_TREE, CHAIN_APPROX_NONE);
@@ -30,6 +32,8 @@ int glassDetect(Mat& glass, int radiusThres, int contourAreaThres, templateGet F
 	threshold(glass, thresDown, getAveragePix(glass, 0) - FilterParameter.glassThresDownoffset, 255, CV_THRESH_BINARY_INV);
 	threshold(glass, thresUp, getAveragePix(glass, 0) + FilterParameter.glassThresUpoffset, 255, CV_THRESH_BINARY);
 	thres = thresDown + thresUp;
+	//imwrite("thres1.jpg", thresDown);
+	//imwrite("thres2.jpg", thresUp);
 	findContours(thres, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
 	//删去过大的丝印的轮廓
 	it_contour = contours.begin();
@@ -66,7 +70,7 @@ int silkprintDetect(Mat silkprint, int radiusThres, int contourAreaThres, Mat &s
 	int defect_flag = 0;	//缺陷标志位，0--无缺陷，1--有缺陷
 	//提取出丝印的内外轮廓
 	Mat tt;
-	threshold(silkprint, tt, 0, 255, CV_THRESH_BINARY);
+	threshold(silkprint, tt, 0, 255, CV_THRESH_BINARY | CV_THRESH_OTSU);
 	vector<vector<Point>> contours;
 	vector<Vec4i> hierarchy;
 	findContours(tt, contours, hierarchy, RETR_TREE, CHAIN_APPROX_NONE);

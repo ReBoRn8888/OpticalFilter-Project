@@ -18,7 +18,7 @@ public:
 	vector<Mat> glass_list;
 	vector<Mat> silkprint_list;//In public for convience
 	Mat srcImg1, srcImg2, srcImg3;//three each group
-	//vector<string> SingleType;//For example:"Empty","Printing"&etc.
+	vector<string> tested_path;
 	vector<int> whetherGlassed;//whether coverd glass
 	vector<int> glassLabel;
 	vector<Mat> Area1;
@@ -29,6 +29,7 @@ public:
 	bool whetherNull;
 	void imageMatting(vector<Mat> &, templateGet);
 	void imageMatting2(vector<Mat> &, templateGet);
+	void imageMatting3(vector<Mat> &, templateGet);
 
 	~Filter();
 };
