@@ -24,8 +24,8 @@ int glassDetect(Mat& glass, int radiusThres, int contourAreaThres, templateGet F
 	}
 	int a = contourArea(contours[0]);
 	int l = contours[0].size();
-	if (a < FilterParameter.filterArea - FilterParameter.areaDownoffset || a > FilterParameter.filterArea - FilterParameter.areaUpoffset || 
-		l < FilterParameter.filterLength - FilterParameter.lengthDownoffset || l > FilterParameter.filterLength - FilterParameter.lengthUpoffset)
+	if (a < FilterParameter.filterArea - FilterParameter.areaDownoffset || a > FilterParameter.filterArea + FilterParameter.areaUpoffset || 
+		l < FilterParameter.filterLength - FilterParameter.lengthDownoffset || l > FilterParameter.filterLength + FilterParameter.lengthUpoffset)
 		defect_flag = 1;
 	//按照像素均值+offset以上 和 像素均值-offset以下，将图像进行二值化
 	Mat thresDown, thresUp, thres;

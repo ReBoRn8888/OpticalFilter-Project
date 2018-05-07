@@ -229,7 +229,7 @@ vector<int>GetArea(Mat img, int item_num, vector<Point2f>&mycenter,bool&whetherN
 	int filterAndnull = Get6th(contours, filterArea, ratio);
 
 
-	vector <vector<Point>> contours_poly(filterAndnull);
+	vector<vector<Point>> contours_poly(filterAndnull);
 	vector<Point2f>  center(filterAndnull);
 	vector<float> radius(filterAndnull);
 	vector<int> isGlass(filterAndnull);
@@ -294,10 +294,10 @@ int Get6th(vector<vector<Point>> contours, int FilterArea,double ratio)//×¢ÒâµÚ¶
 			FilterCount++;
 		}
 	}
-	if (FilterCount == 0)
-	{
-		return -1;
-	}
+	//if (FilterCount == 0)
+	//{
+	//	return -1;
+	//}
 	return FilterCount;
 }
 
