@@ -210,6 +210,7 @@ vector<int>GetArea(Mat img, int item_num, vector<Point2f>&mycenter,bool&whetherN
 	threshold(img, edge, 120, 255, 0);
 
 	Mat dstImg = Mat::zeros(edge.rows, edge.cols, edge.type());
+	imwrite("ss.jpg",img);
 	vector<vector<Point>> contours;
 	vector<Vec4i> hierarchy;
 
@@ -249,8 +250,16 @@ vector<int>GetArea(Mat img, int item_num, vector<Point2f>&mycenter,bool&whetherN
 		Scalar color(255);
 		int xx = contourArea(contours[index]);
 		bool flagFilter = xx<filterArea*1.05 && xx>filterArea*0.95;
+
+		RotatedRect rect = minAreaRect(contours[index]);
+		double ratios1 = rect.size.height / rect.size.width;
+		double ratios2 = rect.size.width / rect.size.height;
+		bool ratio_flag1 = ratios1<ratio*1.1 && ratios1>ratio*0.9;
+		bool ratio_flag2 = ratios2<ratio*1.1 && ratios2>ratio*0.9;
+		bool ratio_flag = ratio_flag1 || ratio_flag2;
+
 		Mat boundRect;
-		if (flagFilter)
+		if (flagFilter && ratio_flag)
 		{
 			approxPolyDP(Mat(contours[index]), contours_poly[Areacount], 5, true);//±Æ½üÇúÏß£¬Ó¦¸ÃÒªµ÷Õû
 			minEnclosingCircle(contours_poly[Areacount], center[Areacount], radius[Areacount]);
@@ -279,14 +288,14 @@ int Get6th(vector<vector<Point>> contours, int FilterArea,double ratio)//×¢ÒâµÚ¶
 		g_dConLength = contourArea(contours[i]);
 		idx.push_back(g_dConLength);
 	}
-
+	//sort(idx.begin(), idx.end());
 	for (int index = 0; index < length; index++)
 	{
 		RotatedRect rect = minAreaRect(contours[index]);
 		double ratios1 = rect.size.height / rect.size.width;
 		double ratios2 = rect.size.width / rect.size.height;
-		bool ratio_flag1 = ratios1<ratio*1.05 && ratios1>ratio*0.95;
-		bool ratio_flag2 = ratios2<ratio*1.05 && ratios2>ratio*0.95;
+		bool ratio_flag1 = ratios1<ratio*1.1 && ratios1>ratio*0.9;
+		bool ratio_flag2 = ratios2<ratio*1.1 && ratios2>ratio*0.9;
 		bool ratio_flag = ratio_flag1 || ratio_flag2;
 		bool flagFilter = idx[index]<FilterArea*1.05 && idx[index]>FilterArea*0.95;
 		if (flagFilter && ratio_flag)
@@ -294,10 +303,7 @@ int Get6th(vector<vector<Point>> contours, int FilterArea,double ratio)//×¢ÒâµÚ¶
 			FilterCount++;
 		}
 	}
-	//if (FilterCount == 0)
-	//{
-	//	return -1;
-	//}
+
 	return FilterCount;
 }
 
