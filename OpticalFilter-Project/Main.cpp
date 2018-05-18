@@ -28,9 +28,9 @@ void detectThread(Filter thisFilter, int radiusThres_silkprint, int contourAreaT
 	thisFilter.Area3[areaID].copyTo(SingleResult[areaID].src[2]);
 	if (thisFilter.whetherGlassed[areaID] == -1){
 		cout << "Area:" + Int_to_String(thisFilter.glassLabel[areaID]) + " have ng Filter" << endl;
-		SingleResult[areaID].flag = 1;
+		SingleResult[areaID].flag = -1;
 	}
-	if (thisFilter.whetherGlassed[areaID] == 1){
+	else if (thisFilter.whetherGlassed[areaID] == 1){
 		SingleResult[areaID].type = FilterParameter.filterType;
 		int silkprint_flag = silkprintDetect(thisFilter.silkprint_list[areaID], radiusThres_silkprint, contourAreaThres_silkprint, silkPrint_show_list[areaID], FilterParameter);
 		if (silkprint_flag != 0){
@@ -51,7 +51,7 @@ void detectThread(Filter thisFilter, int radiusThres_silkprint, int contourAreaT
 
 int main()
 {
-	int num = 1;		//当前第几组图片，编号从0开始
+	int num = 2;		//当前第几组图片，编号从0开始
 	vector<int> filterArea = { 210000, 320000, 215000, 225000, 270000, 145000, 250000, 360000 };//预置的滤光片面积，之后手动输入参数
 	vector<int> filterHeight = { 0, 0, 0, 0, 590, 0, 719, 700 };//预置的滤光片高度，之后手动输入参数
 	vector<int> filterWidth = { 0, 0, 0, 0, 730, 0, 645, 700 };//预置的滤光片宽度，之后手动输入参数
@@ -64,7 +64,7 @@ int main()
 	double yposParameter = 1.0;
 
 	//下面是模板获取的参数的初始化
-	FilterParameter.ratio = 1.3;					//滤光片长宽比
+	FilterParameter.ratio = 1.3;					//滤光片长宽比（高度/宽度）
 	FilterParameter.elementSize = 7;					//膨胀和腐蚀的尺寸
 	FilterParameter.filterType = 0;		//滤光片种类
 	FilterParameter.firstHeight = 770;					//粗定位的高度
@@ -108,10 +108,12 @@ int main()
 
 		//将检测结果整理到结构体
 		for (int i = 0; i < thisFilter.glass_list.size(); i++){
-			if (SingleResult[i].flag){
+			if (SingleResult[i].flag == 1){
 				cout << "<" << SingleResult[i].label << ">号滤光片有缺陷" << endl;
 				algorithmOutput.ngFileter.push_back(SingleResult[i]);
 			}
+			else if (SingleResult[i].flag == -1)
+				cout << "<" << SingleResult[i].label << ">号位置滤光片有误" << endl;
 			algorithmOutput.allFilter.push_back(SingleResult[i]);
 		}
 	}

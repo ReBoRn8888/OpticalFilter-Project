@@ -149,9 +149,8 @@ void Filter::imageMatting(vector<Mat> &silkPrint_show_list, templateGet FilterPa
 			int width = tr.x - tl.x;	//图上内部小矩形的宽度
 			int height = bl.y - tl.y;	//图上内部小矩形的高度
 			double thisRatio = (double)height / (double)width;
-			bool typeFlag1 = thisRatio < FilterParameter.ratio*1.05 && thisRatio >FilterParameter.ratio*0.95;
-			bool typeFlag2 = (double)1 / thisRatio < FilterParameter.ratio*1.05 && (double)1 / thisRatio >FilterParameter.ratio*0.95;
-			if (typeFlag1 || typeFlag2)
+			bool typeFlag1 = thisRatio < FilterParameter.ratio*1.1 && thisRatio >FilterParameter.ratio*0.9;
+			if (typeFlag1)
 				whetherGlassed[i] = 1;
 			else
 				whetherGlassed[i] = -1;
@@ -293,12 +292,13 @@ void Filter::imageMatting2(vector<Mat> &silkPrint_show_list, templateGet FilterP
 			int width = tr.x - tl.x;	//图上内部小矩形的宽度
 			int height = bl.y - tl.y;	//图上内部小矩形的高度
 			double thisRatio = (double)height / (double)width;
-			bool typeFlag1 = thisRatio < FilterParameter.ratio*1.05 && thisRatio >FilterParameter.ratio*0.95;
-			bool typeFlag2 = (double)1 / thisRatio < FilterParameter.ratio*1.05 && (double)1 / thisRatio >FilterParameter.ratio*0.95;
-			if (typeFlag1 || typeFlag2)
+			bool typeFlag1 = thisRatio < FilterParameter.ratio*1.1 && thisRatio >FilterParameter.ratio*0.9;
+			if (typeFlag1)
 				whetherGlassed[i] = 1;
-			else
+			else{
 				whetherGlassed[i] = -1;
+				return;
+			}
 
 			//精确定位整块滤光片
 			Mat temp = roi1.clone();

@@ -157,9 +157,7 @@ float RotatedDegree(Mat rotaImg)
 	float ks = atan(k) * 180 / 3.14;
 	circle(tt, Line1_b, 5, Scalar(120), 2, 8);
 	circle(tt, Line1_a, 5, Scalar(255), 2, 8);
-	//imwrite("ss.jpg", tt);
-	//imwrite("contours.jpg", Maps);
-	//waitKey();
+
 	return ks;
 }
 
