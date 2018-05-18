@@ -29,14 +29,6 @@ int glassDetect(Mat& glass, int radiusThres, int contourAreaThres, templateGet F
 	//将图像进行自适应二值化操作（能够根据图像不同区域亮度分布来改变阈值）
 	Mat adaptThres;
 	adaptiveThreshold(glass, adaptThres, 255, CV_ADAPTIVE_THRESH_MEAN_C, CV_THRESH_BINARY_INV, FilterParameter.elementSize * 2 + 1, FilterParameter.glassThresOffset);
-	//imwrite("adaptiveThres.jpg", adaptThres);
-
-	//Mat thresDown, thresUp, thres;
-	//threshold(glass, thresDown, getAveragePix(glass, 0) - FilterParameter.glassThresDownoffset, 255, CV_THRESH_BINARY_INV);
-	//threshold(glass, thresUp, getAveragePix(glass, 0) + FilterParameter.glassThresUpoffset, 255, CV_THRESH_BINARY);
-	//thres = thresDown + thresUp;
-	//imwrite("thres1.jpg", thresDown);
-	//imwrite("thres2.jpg", thresUp);
 
 	findContours(adaptThres, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
 	//删去过大的丝印的轮廓

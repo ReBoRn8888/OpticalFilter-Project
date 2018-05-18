@@ -89,9 +89,13 @@ void Filter::imageMatting(vector<Mat> &silkPrint_show_list, templateGet FilterPa
 			roi2 = Area2[i].clone();
 			roi3 = Area3[i].clone();
 
+			Mat element = getStructuringElement(MORPH_RECT, Size(15, 15));
+			morphologyEx(roi3, roi3, MORPH_OPEN, element);	//开操作消除较小明亮区域
+
 			float degree = RotatedDegree(roi3);
 			Point2f center = Point2f(roi2.cols / 2, roi2.rows / 2);
 			Mat rotateMat = getRotationMatrix2D(center, degree, 1);
+			warpAffine(roi1, roi1, rotateMat, roi1.size());
 			warpAffine(roi2, roi2, rotateMat, roi2.size());
 			warpAffine(roi3, roi3, rotateMat, roi3.size());
 
@@ -172,11 +176,12 @@ void Filter::imageMatting(vector<Mat> &silkPrint_show_list, templateGet FilterPa
 			/*----------------------------------------------------------------*/
 			/*--------------------------透光区提取模块-------------------------*/
 			/*----------------------------------------------------------------*/
-			Mat tt;
-			threshold(whole_temp, tt, 250, 255, CV_THRESH_BINARY);
-			Mat element = getStructuringElement(MORPH_RECT, Size(FilterParameter.elementSize, FilterParameter.elementSize));
+			//Mat tt;
+			//threshold(whole_temp, tt, 250, 255, CV_THRESH_BINARY);
+			element = getStructuringElement(MORPH_RECT, Size(FilterParameter.elementSize, FilterParameter.elementSize));
 			Mat forGlassContour;
-			erode(tt, forGlassContour, element, Point(-1, -1), 1);
+			erode(glass_mask, forGlassContour, element, Point(-1, -1), 1);
+
 			//imwrite("cs.jpg", tt);
 			findContours(forGlassContour, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
 			it_contour = contours.begin();
@@ -187,7 +192,7 @@ void Filter::imageMatting(vector<Mat> &silkPrint_show_list, templateGet FilterPa
 					++it_contour;
 			}
 			Mat glass;  //用于存储提取出的滤光片镜面部分
-			roi3(Rect(temp.cols / 2 - FilterParameter.filterWidth / 2, temp.rows / 2 - FilterParameter.filterHeight / 2, FilterParameter.filterWidth, FilterParameter.filterHeight)).copyTo(glass, glass_mask);  //提取出滤光片镜面
+			roi2(Rect(temp.cols / 2 - FilterParameter.filterWidth / 2, temp.rows / 2 - FilterParameter.filterHeight / 2, FilterParameter.filterWidth, FilterParameter.filterHeight)).copyTo(glass, forGlassContour);  //提取出滤光片镜面
 			drawContours(glass, contours, -1, Scalar(getModePix(glass, 0)), 3);
 			glass_list.push_back(glass);
 
@@ -195,7 +200,9 @@ void Filter::imageMatting(vector<Mat> &silkPrint_show_list, templateGet FilterPa
 			/*---------------------------丝印提取模块--------------------------*/
 			/*----------------------------------------------------------------*/
 			Mat forSilkContour;
-			dilate(tt, forSilkContour, element, Point(-1, -1), 1);
+			dilate(glass_mask, forSilkContour, element, Point(-1, -1), 1);
+			Mat silkprint_mask;
+			bitwise_not(forSilkContour, silkprint_mask);
 			findContours(forSilkContour, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
 			it_contour = contours.begin();
 			while (it_contour != contours.end()){
@@ -205,10 +212,8 @@ void Filter::imageMatting(vector<Mat> &silkPrint_show_list, templateGet FilterPa
 					++it_contour;
 			}
 			drawContours(glass_mask, contours, -1, Scalar(255), CV_FILLED);
-			Mat silkprint_mask;
-			bitwise_not(glass_mask, silkprint_mask);
 			Mat silkprint; //用于存储提取出的丝印部分
-			whole_temp.copyTo(silkprint, silkprint_mask);
+			roi1(Rect(temp.cols / 2 - FilterParameter.filterWidth / 2, temp.rows / 2 - FilterParameter.filterHeight / 2, FilterParameter.filterWidth, FilterParameter.filterHeight)).copyTo(silkprint, silkprint_mask);  //提取出滤光片镜面
 			silkprint_list.push_back(silkprint);
 		}
 		else
@@ -228,6 +233,9 @@ void Filter::imageMatting2(vector<Mat> &silkPrint_show_list, templateGet FilterP
 			roi1 = Area1[i].clone();
 			roi2 = Area2[i].clone();
 			roi3 = Area3[i].clone();
+
+			Mat element = getStructuringElement(MORPH_RECT, Size(15, 15));
+			morphologyEx(roi3, roi3, MORPH_OPEN, element);	//开操作消除较小明亮区域
 
 			float degree = RotatedDegree(roi3);
 			Point2f center = Point2f(roi2.cols / 2, roi2.rows / 2);
@@ -305,7 +313,7 @@ void Filter::imageMatting2(vector<Mat> &silkPrint_show_list, templateGet FilterP
 			/*----------------------------------------------------------------*/
 			/*--------------------------透光区提取模块-------------------------*/
 			/*----------------------------------------------------------------*/
-			Mat element = getStructuringElement(MORPH_RECT, Size(FilterParameter.elementSize, FilterParameter.elementSize));
+			element = getStructuringElement(MORPH_RECT, Size(FilterParameter.elementSize, FilterParameter.elementSize));
 			dilate(inner_glass_mask, inner_glass_mask, element, Point(-1, -1), 1);
 			Mat outer_glass_mask;
 			IplImage ipl = (IplImage)whole;
@@ -330,7 +338,7 @@ void Filter::imageMatting2(vector<Mat> &silkPrint_show_list, templateGet FilterP
 					++it_contour;
 			}
 			Mat inner_glass, outer_glass;
-			Area3[i].copyTo(inner_glass, inner_glass_mask);
+			Area2[i].copyTo(inner_glass, inner_glass_mask);
 			Mat gray(inner_glass.rows, inner_glass.cols, CV_8UC1, Scalar(255 - getAveragePix(inner_glass, 0)));	//设置外部镜面的颜色差值gray，使得原来的白色与gray相减后与内部镜面颜色相当
 			Area1[i].copyTo(outer_glass, outer_glass_mask);
 			outer_glass = outer_glass - gray;
@@ -355,7 +363,7 @@ void Filter::imageMatting2(vector<Mat> &silkPrint_show_list, templateGet FilterP
 					++it_contour;
 			}
 			Mat silkprint;
-			Area2[i].copyTo(silkprint, silkprint_mask);
+			Area1[i].copyTo(silkprint, silkprint_mask);
 			drawContours(silkprint, contours, -1, Scalar(getAveragePix(silkprint, 0), 5));
 			silkprint_list.push_back(silkprint);
 		}
@@ -373,6 +381,7 @@ void Filter::imageMatting3(vector<Mat> &silkPrint_show_list, templateGet FilterP
 	Mat roi1, roi2, roi3;
 	for (int i = 0; i < Area1.size(); i++) {
 		if (whetherGlassed[i] == 1) {
+			roi1 = Area1[i].clone();
 			roi2 = Area2[i].clone();
 			roi3 = Area3[i].clone();
 
@@ -397,7 +406,7 @@ void Filter::imageMatting3(vector<Mat> &silkPrint_show_list, templateGet FilterP
 			drawContours(glass_mask, contours, -1, Scalar(255), CV_FILLED, 8);
 
 			Mat glass;
-			roi3.copyTo(glass, glass_mask);
+			roi2.copyTo(glass, glass_mask);
 			drawContours(glass, contours, -1, Scalar(getModePix(glass, 0)), 3);
 			glass_list.push_back(glass);
 

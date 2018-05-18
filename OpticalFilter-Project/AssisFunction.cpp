@@ -105,7 +105,7 @@ vector<string> pathGet(string filepath, string postFix)
 float RotatedDegree(Mat rotaImg)
 {
 	Mat glass_thres;
-	threshold(rotaImg, glass_thres, 25, 255.0, CV_THRESH_BINARY);
+	threshold(rotaImg, glass_thres, 0, 255.0, CV_THRESH_BINARY | CV_THRESH_OTSU);
 
 	vector<vector<Point>> contours;
 	vector<Vec4i> hierarchy;
