@@ -249,7 +249,7 @@ vector<int>GetArea(Mat img, int item_num, vector<Point2f>&mycenter,bool&whetherN
 	{
 		Scalar color(255);
 		int xx = contourArea(contours[index]);
-		bool flagFilter = xx<filterArea*1.05 && xx>filterArea*0.95;
+		bool flagFilter = xx<filterArea*1.1 && xx>filterArea*0.9;
 
 		RotatedRect rect = minAreaRect(contours[index]);
 		double ratios1 = rect.size.height / rect.size.width;
@@ -276,11 +276,11 @@ vector<int>GetArea(Mat img, int item_num, vector<Point2f>&mycenter,bool&whetherN
 
 int Get6th(vector<vector<Point>> contours, int FilterArea,double ratio)//×¢ÒâµÚ¶þ¸ö²ÎÊý²»ÄÜÂÒÈ¡£¬Ò»¶¨ÒªÉÙÓÚ×ÜÂÖÀªµÄÊýÁ¿£¬>0
 {
-	int length = contours.size(); vector<int> flag; int frontFlag = 1;
+	int length = contours.size(); vector<int> flag;
 	vector<int> idx; int FilterCount = 0;
-	Mat boundRect; //Íâ½ç¾ØÐÎ£¬ÅÐ¶Ïratio
-	int front=1;
-	int next = 1;
+	//Mat boundRect; //Íâ½ç¾ØÐÎ£¬ÅÐ¶Ïratio
+	//int front=1;
+	//int next = 1;
 
 	double g_dConLength;
 	for (int i = 0; i < length; i++)
@@ -297,7 +297,7 @@ int Get6th(vector<vector<Point>> contours, int FilterArea,double ratio)//×¢ÒâµÚ¶
 		bool ratio_flag1 = ratios1<ratio*1.1 && ratios1>ratio*0.9;
 		bool ratio_flag2 = ratios2<ratio*1.1 && ratios2>ratio*0.9;
 		bool ratio_flag = ratio_flag1 || ratio_flag2;
-		bool flagFilter = idx[index]<FilterArea*1.05 && idx[index]>FilterArea*0.95;
+		bool flagFilter = idx[index]<FilterArea*1.1 && idx[index]>FilterArea*0.9;
 		if (flagFilter && ratio_flag)
 		{
 			FilterCount++;

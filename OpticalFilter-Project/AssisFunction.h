@@ -22,8 +22,7 @@ struct templateGet
 	int filterLength;
 	double silkThresUpoffset;
 	double silkThresDownoffset;
-	double glassThresUpoffset;
-	double glassThresDownoffset;
+	double glassThresOffset;
 	double areaUpoffset;
 	double areaDownoffset;
 	double lengthUpoffset;

@@ -51,7 +51,7 @@ void detectThread(Filter thisFilter, int radiusThres_silkprint, int contourAreaT
 
 int main()
 {
-	int num = 0;		//当前第几组图片，编号从0开始
+	int num = 2;		//当前第几组图片，编号从0开始
 	vector<int> filterArea = { 210000, 320000, 215000, 225000, 270000, 145000, 250000, 360000 };//预置的滤光片面积，之后手动输入参数
 	vector<int> filterHeight = { 0, 0, 0, 0, 590, 0, 719, 700 };//预置的滤光片高度，之后手动输入参数
 	vector<int> filterWidth = { 0, 0, 0, 0, 730, 0, 645, 700 };//预置的滤光片宽度，之后手动输入参数
@@ -69,18 +69,17 @@ int main()
 	FilterParameter.filterType = 0;		//滤光片种类
 	FilterParameter.firstHeight = 800;					//粗定位的高度
 	FilterParameter.firstWidth = 800;					//粗定位的宽度
-	FilterParameter.filterHeight = 552;	               //滤光片的高度
-	FilterParameter.filterWidth = 700;		           //滤光片的宽度
-	FilterParameter.filterArea = 213654;		       //滤光片面积
+	FilterParameter.filterHeight = 697;	               //滤光片的高度
+	FilterParameter.filterWidth = 556;		           //滤光片的宽度
+	FilterParameter.filterArea = 215000;		       //滤光片面积
 	FilterParameter.filterLength = 2177;				//滤光片周长
 	FilterParameter.areaUpoffset = 2000;					//面积差上限偏移量
 	FilterParameter.areaDownoffset = 2000;				//面积差下限偏移量
 	FilterParameter.lengthUpoffset = 500;				//周长差上限偏移量
 	FilterParameter.lengthDownoffset = 500;				//周长差下限偏移量
-	FilterParameter.glassThresUpoffset = 100;			//检测时透光区二值化阈值的下限偏移量
-	FilterParameter.glassThresDownoffset = 100;			//检测时透光区二值化阈值的上限偏移量
-	FilterParameter.silkThresUpoffset = 100;				//检测时丝印二值化阈值的下限偏移量
-	FilterParameter.silkThresDownoffset = 100;			//检测时丝印二值化阈值的上限偏移量
+	FilterParameter.glassThresOffset = 4;			//检测时透光区二值化阈值的偏移量
+	FilterParameter.silkThresUpoffset = 20;				//检测时丝印二值化阈值的下限偏移量
+	FilterParameter.silkThresDownoffset = 20;			//检测时丝印二值化阈值的上限偏移量
 
 	Filter thisFilter(filepath, postFix, num, FilterParameter);
 
