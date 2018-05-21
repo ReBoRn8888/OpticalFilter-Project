@@ -356,3 +356,37 @@ int getModePix(Mat input, int ignore){
 	}
 	return list[index];
 }
+
+Mat localyuzhi(Mat src, int blocksize, int yuzhi)
+{
+	Mat dst = Mat::zeros(src.rows, src.cols, src.type());
+	double  num = (blocksize * 2 + 1)*(blocksize * 2 + 1), all = 0, n = 0;
+	vector<double>avg(src.rows*src.cols);
+	for (int j = blocksize; j < src.rows - blocksize; j++)
+	{
+		for (int i = blocksize; i < src.cols - blocksize; i++)
+		{
+
+			for (int pj = j - blocksize; pj <= j + blocksize; pj++)
+			{
+				for (int pi = i - blocksize; pi <= i + blocksize; pi++)
+				{
+					all = (all + src.at<uchar>(pj, pi));
+				}
+			}
+			avg[n] = all / num;
+			all = 0;
+			if (abs(src.at<uchar>(j, i) - avg[n])>yuzhi)
+			{
+				dst.at<uchar>(j, i) = 255;
+			}
+			else
+			{
+				dst.at<uchar>(j, i) = 0;
+			}
+			n++;
+		}
+	}
+	return dst;
+
+}

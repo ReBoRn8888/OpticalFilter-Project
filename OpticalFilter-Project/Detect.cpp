@@ -27,10 +27,41 @@ int glassDetect(Mat& glass, int radiusThres, int contourAreaThres, templateGet F
 		defect_flag = 1;
 
 	//将图像进行自适应二值化操作（能够根据图像不同区域亮度分布来改变阈值）
-	Mat adaptThres;
-	adaptiveThreshold(glass, adaptThres, 255, CV_ADAPTIVE_THRESH_MEAN_C, CV_THRESH_BINARY_INV, FilterParameter.elementSize * 2 + 1, FilterParameter.glassThresOffset);
+	Mat adaptThres1, adaptThres2;
+	adaptiveThreshold(glass, adaptThres1, 255, CV_ADAPTIVE_THRESH_MEAN_C, CV_THRESH_BINARY_INV, FilterParameter.elementSize * 2 + 1, FilterParameter.glassThresOffset);
+	adaptiveThreshold(glass, adaptThres2, 255, CV_ADAPTIVE_THRESH_MEAN_C, CV_THRESH_BINARY_INV, FilterParameter.elementSize * 2 + 1, -FilterParameter.glassThresOffset);
+	Mat element = getStructuringElement(MORPH_RECT, Size(5, 5));
+	dilate(adaptThres1, adaptThres1, element, Point(-1, -1), 1);
+	erode(adaptThres2, adaptThres2, element, Point(-1, -1), 1);
 
-	findContours(adaptThres, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
+	findContours(adaptThres1, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
+	//删去过大的丝印的轮廓
+	it_contour = contours.begin();
+	while (it_contour != contours.end()){
+		if (contourArea(*it_contour) > FilterParameter.filterArea * 0.8)
+			it_contour = contours.erase(it_contour);
+		else
+			++it_contour;
+	}
+	//遍历轮廓，判断缺陷
+	for (int index = 0; index < contours.size(); index++) {
+		Point2f center;
+		float radius;
+		minEnclosingCircle(contours[index], center, radius);	//计算轮廓的最小外接圆
+		int area = contourArea(contours[index]);	//计算轮廓面积
+		int scale = 3;
+		int todo_flag = 0;
+		if (center.x > scale && center.x < glass.cols - scale && center.y > scale && center.y < glass.rows - scale && area < (glass.cols * glass.rows / 2) && radius < glass.cols * 2 / 5)
+			todo_flag = 1;	//过滤掉太边缘的轮廓以及太大的轮廓
+		if (todo_flag) {
+			if (radius >= radiusThres || area >= contourAreaThres) {	//若最小外接圆的半径大于"radiusThres",或轮廓面积大于"contourAreaThres"，则判断为缺陷
+				drawContours(glass, contours, index, Scalar(255), 2, 8);
+				defect_flag = 1;
+			}
+		}
+	}
+
+	findContours(adaptThres2, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
 	//删去过大的丝印的轮廓
 	it_contour = contours.begin();
 	while (it_contour != contours.end()){

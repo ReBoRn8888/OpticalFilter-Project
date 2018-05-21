@@ -54,4 +54,6 @@ int silkprintDetect(Mat, int, int, Mat &, templateGet);
 int getAveragePix(Mat, int);
 int getModePix(Mat, int);
 
+Mat localyuzhi(Mat src, int blocksize, int yuzhi);
+
 #endif

@@ -192,7 +192,7 @@ void Filter::imageMatting(vector<Mat> &silkPrint_show_list, templateGet FilterPa
 			}
 			Mat glass;  //用于存储提取出的滤光片镜面部分
 			roi2(Rect(temp.cols / 2 - FilterParameter.filterWidth / 2, temp.rows / 2 - FilterParameter.filterHeight / 2, FilterParameter.filterWidth, FilterParameter.filterHeight)).copyTo(glass, forGlassContour);  //提取出滤光片镜面
-			drawContours(glass, contours, -1, Scalar(getModePix(glass, 0)), 3);
+			drawContours(glass, contours, -1, Scalar(getAveragePix(glass, 0)), 3);
 			glass_list.push_back(glass);
 
 			/*----------------------------------------------------------------*/
